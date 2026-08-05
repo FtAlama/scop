@@ -12,7 +12,8 @@ class TriangleApplication {
 public:
   TriangleApplication();
   ~TriangleApplication();
-  void run() {
+  
+	void run() {
     initVulkan();
     mainLoop();
     cleanup();
@@ -20,10 +21,12 @@ public:
 
 private:
 	GLFWwindow *window;
+	VkInstance instance;
 
   void initVulkan();
   void mainLoop();
   void cleanup();
+	void createInstance();
 };
 
 #endif
