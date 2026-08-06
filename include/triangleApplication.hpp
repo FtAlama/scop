@@ -11,22 +11,23 @@ const uint32_t HEIGHT = 600;
 class TriangleApplication {
 public:
   TriangleApplication();
+  TriangleApplication(TriangleApplication &);
   ~TriangleApplication();
-  
-	void run() {
+
+  void run() {
     initVulkan();
     mainLoop();
     cleanup();
   }
 
 private:
-	GLFWwindow *window;
-	VkInstance instance;
+  GLFWwindow *window;
+  VkInstance instance;
 
   void initVulkan();
   void mainLoop();
   void cleanup();
-	void createInstance();
+  void createInstance();
 };
 
 #endif
