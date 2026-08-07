@@ -1,5 +1,7 @@
 #include "triangleApplication.hpp"
-#include <iostream>
+#include <GLFW/glfw3.h>
+#include <cstdint>
+#include <cstring>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
@@ -11,6 +13,7 @@ void TriangleApplication::initVulkan() {
   window = glfwCreateWindow(WIDTH, HEIGHT, "Scop", nullptr, nullptr);
 
   createInstance();
+  setupDebugMessenger();
 }
 
 void TriangleApplication::mainLoop() {
@@ -20,6 +23,10 @@ void TriangleApplication::mainLoop() {
 }
 
 void TriangleApplication::createInstance() {
+  if (enableValidationLayers && !checkValidationSupport()) {
+    throw std::runtime_error("validation layers request, but not available!");
+  }
+
   VkApplicationInfo appInfo{};
   VkInstanceCreateInfo createInfo{};
   uint32_t glfwExtensionCount = 0;
@@ -35,26 +42,43 @@ void TriangleApplication::createInstance() {
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   createInfo.pApplicationInfo = &appInfo;
 
+  auto extensions = getRequiredExtensions();
+  createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+  createInfo.ppEnabledExtensionNames = extensions.data();
+
+  if (enableValidationLayers) {
+    createInfo.enabledLayerCount =
+        static_cast<uint32_t>(validationLayers.size());
+    createInfo.ppEnabledLayerNames = validationLayers.data();
+  } else
+    createInfo.enabledLayerCount = 0;
+
   glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
   createInfo.enabledExtensionCount = glfwExtensionCount;
   createInfo.ppEnabledExtensionNames = glfwExtensions;
   createInfo.enabledLayerCount = 0;
 
-  if (vkCreateInstance(&createInfo, nullptr, &this->instance) != VK_SUCCESS) {
-    throw std::runtime_error("failed to creat instance!");
+  VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+
+  if (enableValidationLayers) {
+    createInfo.enabledLayerCount =
+        static_cast<uint32_t>(validationLayers.size());
+    createInfo.ppEnabledLayerNames = validationLayers.data();
+    populateDebugMessengerCreateInfo(debugCreateInfo);
+    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+  } else {
+    createInfo.enabledLayerCount = 0;
+    createInfo.pNext = nullptr;
   }
 
-  uint32_t extensionCount = 0;
-  vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-  std::vector<VkExtensionProperties> extensions(extensionCount);
-
-  std::cout << "available extensions\n";
-  for (const auto &extension : extensions) {
-    std::cout << '\t' << extension.extensionName << std::endl;
+  if (vkCreateInstance(&createInfo, nullptr, &this->instance) != VK_SUCCESS) {
+    throw std::runtime_error("failed to creat instance!");
   }
 }
 
 void TriangleApplication::cleanup() {
+  if (enableValidationLayers)
+    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
   vkDestroyInstance(instance, nullptr);
   glfwDestroyWindow(window);
   glfwTerminate();
@@ -63,3 +87,5 @@ void TriangleApplication::cleanup() {
 TriangleApplication::TriangleApplication() {}
 
 TriangleApplication::~TriangleApplication() {}
+
+// coms
