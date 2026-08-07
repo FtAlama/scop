@@ -14,6 +14,7 @@ void TriangleApplication::initVulkan() {
 
   createInstance();
   setupDebugMessenger();
+	pickPhysicalDevice();
 }
 
 void TriangleApplication::mainLoop() {
@@ -87,5 +88,3 @@ void TriangleApplication::cleanup() {
 TriangleApplication::TriangleApplication() {}
 
 TriangleApplication::~TriangleApplication() {}
-
-// coms

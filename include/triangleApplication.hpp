@@ -8,6 +8,7 @@
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "queueFamilies.hpp"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -22,13 +23,11 @@ const bool enableValidationLayers = true;
 #endif
 
 VkResult CreateDebugUtilsMessengerEXT(
-    VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-    const VkAllocationCallbacks *pAllocator,
-    VkDebugUtilsMessengerEXT *pDebugMessenger);
+    VkInstance, const VkDebugUtilsMessengerCreateInfoEXT *,
+    const VkAllocationCallbacks *, VkDebugUtilsMessengerEXT *);
 
-void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-                                   VkDebugUtilsMessengerEXT debugMessenger,
-                                   const VkAllocationCallbacks *pAllocator);
+void DestroyDebugUtilsMessengerEXT(VkInstance, VkDebugUtilsMessengerEXT,
+                                   const VkAllocationCallbacks *);
 
 class TriangleApplication {
 public:
@@ -45,6 +44,7 @@ private:
   GLFWwindow *window;
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
+  VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
   void initVulkan();
   void mainLoop();
@@ -66,6 +66,10 @@ private:
     (void)messageServity;
     return (false);
   }
+
+  void pickPhysicalDevice();
+  int rateDeviceSuitable(VkPhysicalDevice);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice);
 };
 
 #endif

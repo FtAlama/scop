@@ -10,8 +10,9 @@ find_package(glfw3 REQUIRED)
 
 add_executable(scop 
 	src/main.cpp
-	src/triangleApp.cpp
-	src/validationLayers.cpp
+	src/0_triangleApp.cpp
+	src/1_validationLayers.cpp
+	src/2_physicalDevice.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
