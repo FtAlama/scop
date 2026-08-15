@@ -7,6 +7,9 @@
 
 typedef struct s_queueFamily {
 	std::optional<uint32_t> graphicsFamily;
+	bool isComplete() {
+		return graphicsFamily.has_value();
+	}
 } QueueFamilyIndices;
 
 #endif

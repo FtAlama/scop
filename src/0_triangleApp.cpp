@@ -1,10 +1,14 @@
-#include "triangleApplication.hpp"
+#include "0_triangleApplication.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
+#include "1_validationLayers.hpp"
+#include "2_physicalDevice.hpp"
+
 
 void TriangleApplication::initVulkan() {
   glfwInit();
@@ -13,8 +17,8 @@ void TriangleApplication::initVulkan() {
   window = glfwCreateWindow(WIDTH, HEIGHT, "Scop", nullptr, nullptr);
 
   createInstance();
-  setupDebugMessenger();
-	pickPhysicalDevice();
+	layers.setupDebugMessenger(instance);
+	vk_device.pickPhysicalDevice(instance);
 }
 
 void TriangleApplication::mainLoop() {
@@ -24,7 +28,7 @@ void TriangleApplication::mainLoop() {
 }
 
 void TriangleApplication::createInstance() {
-  if (enableValidationLayers && !checkValidationSupport()) {
+  if (enableValidationLayers && !layers.checkValidationSupport()) {
     throw std::runtime_error("validation layers request, but not available!");
   }
 
@@ -43,7 +47,7 @@ void TriangleApplication::createInstance() {
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   createInfo.pApplicationInfo = &appInfo;
 
-  auto extensions = getRequiredExtensions();
+  auto extensions = layers.getRequiredExtensions();
   createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
   createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -65,7 +69,7 @@ void TriangleApplication::createInstance() {
     createInfo.enabledLayerCount =
         static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
-    populateDebugMessengerCreateInfo(debugCreateInfo);
+    layers.populateDebugMessengerCreateInfo(debugCreateInfo);
     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
   } else {
     createInfo.enabledLayerCount = 0;
@@ -73,13 +77,13 @@ void TriangleApplication::createInstance() {
   }
 
   if (vkCreateInstance(&createInfo, nullptr, &this->instance) != VK_SUCCESS) {
-    throw std::runtime_error("failed to creat instance!");
+    throw std::runtime_error("failed to create instance!");
   }
 }
 
 void TriangleApplication::cleanup() {
   if (enableValidationLayers)
-    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+    DestroyDebugUtilsMessengerEXT(instance, layers.getDebugMsg(), nullptr);
   vkDestroyInstance(instance, nullptr);
   glfwDestroyWindow(window);
   glfwTerminate();

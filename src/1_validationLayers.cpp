@@ -1,9 +1,10 @@
-#include "triangleApplication.hpp"
+#include "1_validationLayers.hpp"
+#include <GLFW/glfw3.h>
 #include <cstring>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-void TriangleApplication::populateDebugMessengerCreateInfo(
+void ValidationLayers::populateDebugMessengerCreateInfo(
     VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
   createInfo = {};
   createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
@@ -37,7 +38,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     func(instance, debugMessenger, pAllocator);
 }
 
-bool TriangleApplication::checkValidationSupport() {
+bool ValidationLayers::checkValidationSupport() {
   uint32_t layerCount;
 
   vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -58,7 +59,7 @@ bool TriangleApplication::checkValidationSupport() {
   return true;
 }
 
-std::vector<const char *> TriangleApplication::getRequiredExtensions() {
+std::vector<const char *> ValidationLayers::getRequiredExtensions() {
   uint32_t glfwExtensionCount = 0;
   const char **glfwExtensions;
 
@@ -72,7 +73,8 @@ std::vector<const char *> TriangleApplication::getRequiredExtensions() {
   return (extensions);
 }
 
-void TriangleApplication::setupDebugMessenger() {
+void ValidationLayers::setupDebugMessenger(
+    VkInstance &instance) {
   if (!enableValidationLayers)
     return;
   VkDebugUtilsMessengerCreateInfoEXT createInfo{};
@@ -89,4 +91,8 @@ void TriangleApplication::setupDebugMessenger() {
   if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr,
                                    &debugMessenger) != VK_SUCCESS)
     throw std::runtime_error("failed to step up debug messenger");
+}
+
+VkDebugUtilsMessengerEXT &ValidationLayers::getDebugMsg() {
+	return debugMessenger;
 }

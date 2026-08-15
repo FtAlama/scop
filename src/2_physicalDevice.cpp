@@ -1,13 +1,14 @@
+#include "2_physicalDevice.hpp"
 #include "queueFamilies.hpp"
-#include "triangleApplication.hpp"
 #include <cstdint>
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-void TriangleApplication::pickPhysicalDevice() {
+void PhysicalDevice::pickPhysicalDevice(VkInstance &instance) {
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -22,36 +23,37 @@ void TriangleApplication::pickPhysicalDevice() {
   for (const auto &device : devices) {
     int score = rateDeviceSuitable(device);
     candidates.insert(std::make_pair(score, device));
- }
+  }
   VkPhysicalDeviceProperties deviceProperties;
   vkGetPhysicalDeviceProperties(candidates.rbegin()->second, &deviceProperties);
 
-	std::cout << "device pick : " << deviceProperties.deviceName << std::endl;
+  std::cout << "device pick : " << deviceProperties.deviceName << std::endl;
   if (candidates.rbegin()->first > 0)
     physicalDevice = candidates.rbegin()->second;
   else
     throw std::runtime_error("failed to find a suitable GPU!");
 }
 
-int TriangleApplication::rateDeviceSuitable(VkPhysicalDevice device) {
+int PhysicalDevice::rateDeviceSuitable(VkPhysicalDevice device) {
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
+  QueueFamilyIndices indices = findQueueFamilies(device);
 
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
   vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-	std::cout << deviceProperties.deviceName << std::endl;
+  std::cout << deviceProperties.deviceName << std::endl;
   int score = 0;
   if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
     score += 1000;
   score += deviceProperties.limits.maxImageDimension2D;
-  if (!deviceFeatures.geometryShader) {
+  if (!deviceFeatures.geometryShader || !indices.isComplete()) {
     return (0);
   }
   return (score);
 }
 
 QueueFamilyIndices
-TriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
+PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
   QueueFamilyIndices indices;
   uint32_t queueFamilyCount = 0;
 
@@ -67,3 +69,10 @@ TriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
   }
   return (indices);
 }
+
+VkDevice &PhysicalDevice::getDevice() { return device; }
+
+VkPhysicalDevice &PhysicalDevice::getPhysicalDevice() { return physicalDevice; }
+
+PhysicalDevice::~PhysicalDevice() {}
+

@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "triangleApplication.hpp"
+#include "0_triangleApplication.hpp"
 
 int main(void) {
   TriangleApplication app;
