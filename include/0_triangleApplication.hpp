@@ -4,6 +4,7 @@
 
 #include "1_validationLayers.hpp"
 #include "2_physicalDevice.hpp"
+#include "3_logicalDevice.hpp"
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
@@ -26,8 +27,9 @@ public:
 private:
   GLFWwindow *window;
   VkInstance instance;
-	PhysicalDevice vk_device;
 	ValidationLayers layers;
+	PhysicalDevice vk_Pdevice;
+	LogicalDevice vk_Ldevice;
 
   void initVulkan();
   void mainLoop();

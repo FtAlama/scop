@@ -2,11 +2,15 @@
 
 #define LOGICAL_DEVICE_HPP
 
-class logicalDevice {
+#include <vulkan/vulkan_core.h>
+
+class LogicalDevice {
 public:
-  void createLogicalDevice();
+	void createLogicalDevice(VkPhysicalDevice &);
+	void destroyDevice();
 
 private:
+  VkDevice device;
 };
 
 #endif

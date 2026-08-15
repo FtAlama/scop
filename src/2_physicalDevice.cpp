@@ -37,7 +37,7 @@ void PhysicalDevice::pickPhysicalDevice(VkInstance &instance) {
 int PhysicalDevice::rateDeviceSuitable(VkPhysicalDevice device) {
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
-  QueueFamilyIndices indices = findQueueFamilies(device);
+  QueueFamilyIndices indices = QueueFamilies::findQueueFamilies(device);
 
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
   vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
@@ -52,8 +52,7 @@ int PhysicalDevice::rateDeviceSuitable(VkPhysicalDevice device) {
   return (score);
 }
 
-QueueFamilyIndices
-PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices QueueFamilies::findQueueFamilies(VkPhysicalDevice device) {
   QueueFamilyIndices indices;
   uint32_t queueFamilyCount = 0;
 
@@ -70,9 +69,6 @@ PhysicalDevice::findQueueFamilies(VkPhysicalDevice device) {
   return (indices);
 }
 
-VkDevice &PhysicalDevice::getDevice() { return device; }
-
 VkPhysicalDevice &PhysicalDevice::getPhysicalDevice() { return physicalDevice; }
 
 PhysicalDevice::~PhysicalDevice() {}
-
