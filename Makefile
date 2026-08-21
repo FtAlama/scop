@@ -23,4 +23,4 @@ fclean:
 re: fclean
 	@$(MAKE) all
 
-.PHONY: all $(NAME) clean fclean re releasdebuge
+.PHONY: all $(NAME) clean fclean re release debug

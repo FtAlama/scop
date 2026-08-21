@@ -22,8 +22,11 @@ void TriangleApplication::initVulkan() {
 
   createInstance();
   layers.setupDebugMessenger(instance);
-  vk_Pdevice.pickPhysicalDevice(instance);
-  vk_Ldevice.createLogicalDevice(vk_Pdevice.getPhysicalDevice());
+  win_surface.createSurface(instance, window);
+  vk_Pdevice.pickPhysicalDevice(instance, win_surface.get_surface());
+  vk_Ldevice.createLogicalDevice(vk_Pdevice.getPhysicalDevice(),
+                                 win_surface.get_surface(), graphicsQueue,
+                                 presentQueue);
 }
 
 void TriangleApplication::mainLoop() {
@@ -74,6 +77,7 @@ void TriangleApplication::cleanup() {
   if (enableValidationLayers)
     DestroyDebugUtilsMessengerEXT(instance, layers.getDebugMsg(), nullptr);
   vk_Ldevice.destroyDevice();
+  win_surface.destroySurface(instance);
   vkDestroyInstance(instance, nullptr);
   glfwDestroyWindow(window);
   glfwTerminate();

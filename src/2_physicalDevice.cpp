@@ -8,7 +8,8 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-void PhysicalDevice::pickPhysicalDevice(VkInstance &instance) {
+void PhysicalDevice::pickPhysicalDevice(VkInstance &instance,
+                                        VkSurfaceKHR &surface) {
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -21,7 +22,7 @@ void PhysicalDevice::pickPhysicalDevice(VkInstance &instance) {
   std::multimap<int, VkPhysicalDevice> candidates;
 
   for (const auto &device : devices) {
-    int score = rateDeviceSuitable(device);
+    int score = rateDeviceSuitable(device, surface);
     candidates.insert(std::make_pair(score, device));
   }
   VkPhysicalDeviceProperties deviceProperties;
@@ -34,10 +35,11 @@ void PhysicalDevice::pickPhysicalDevice(VkInstance &instance) {
     throw std::runtime_error("failed to find a suitable GPU!");
 }
 
-int PhysicalDevice::rateDeviceSuitable(VkPhysicalDevice device) {
+int PhysicalDevice::rateDeviceSuitable(const VkPhysicalDevice &device,
+                                       VkSurfaceKHR &surface) {
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
-  QueueFamilyIndices indices = QueueFamilies::findQueueFamilies(device);
+  QueueFamilyIndices indices = findQueueFamilies(device, surface);
 
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
   vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
@@ -52,9 +54,11 @@ int PhysicalDevice::rateDeviceSuitable(VkPhysicalDevice device) {
   return (score);
 }
 
-QueueFamilyIndices QueueFamilies::findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device,
+                                     VkSurfaceKHR &surface) {
   QueueFamilyIndices indices;
   uint32_t queueFamilyCount = 0;
+  VkBool32 presentSupport = false;
 
   vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
   std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -64,6 +68,12 @@ QueueFamilyIndices QueueFamilies::findQueueFamilies(VkPhysicalDevice device) {
   for (const auto &queueFamily : queueFamilies) {
     if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
       indices.graphicsFamily = i;
+    presentSupport = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+    if (presentSupport)
+      indices.presentFamily = i;
+    if (indices.isComplete())
+      break;
     i++;
   }
   return (indices);

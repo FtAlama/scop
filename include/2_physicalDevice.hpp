@@ -6,13 +6,13 @@
 
 class PhysicalDevice {
 public:
-  void pickPhysicalDevice(VkInstance &);
+  void pickPhysicalDevice(VkInstance &, VkSurfaceKHR &);
 	VkPhysicalDevice &getPhysicalDevice();
 	~PhysicalDevice();
 
 private:
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  int rateDeviceSuitable(VkPhysicalDevice);
+  int rateDeviceSuitable(const VkPhysicalDevice &, VkSurfaceKHR &);
 };
 
 #endif

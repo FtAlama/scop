@@ -14,10 +14,11 @@ add_executable(scop
 	src/1_validationLayers.cpp
 	src/2_physicalDevice.cpp
 	src/3_logicalDevice.cpp
+	src/4_window_surface.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
 target_include_directories(scop PRIVATE include)
 target_include_directories(scop SYSTEM PRIVATE ${Vulkan_INCLUDE_DIR})
 target_link_libraries(scop PRIVATE Vulkan::Vulkan glfw)
-target_compile_options(scop PRIVATE -Wall -Wextra -Werror -g)
+target_compile_options(scop PRIVATE -Wall -Wextra -Werror)
