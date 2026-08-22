@@ -15,6 +15,7 @@ add_executable(scop
 	src/2_physicalDevice.cpp
 	src/3_logicalDevice.cpp
 	src/4_window_surface.cpp
+	src/5_swapchain.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)

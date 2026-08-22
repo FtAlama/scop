@@ -1,6 +1,4 @@
 #include "0_triangleApplication.hpp"
-#include "1_validationLayers.hpp"
-#include "2_physicalDevice.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include <stdexcept>
@@ -27,6 +25,9 @@ void TriangleApplication::initVulkan() {
   vk_Ldevice.createLogicalDevice(vk_Pdevice.getPhysicalDevice(),
                                  win_surface.get_surface(), graphicsQueue,
                                  presentQueue);
+  swapchain.CreateSwapChain(vk_Pdevice.getPhysicalDevice(),
+                            vk_Ldevice.getDevice(), win_surface.get_surface(),
+                            window);
 }
 
 void TriangleApplication::mainLoop() {
@@ -76,6 +77,7 @@ void TriangleApplication::createInstance() {
 void TriangleApplication::cleanup() {
   if (enableValidationLayers)
     DestroyDebugUtilsMessengerEXT(instance, layers.getDebugMsg(), nullptr);
+	swapchain.destroySwapChain(vk_Ldevice.getDevice());
   vk_Ldevice.destroyDevice();
   win_surface.destroySurface(instance);
   vkDestroyInstance(instance, nullptr);

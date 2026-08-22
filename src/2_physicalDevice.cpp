@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iostream>
 #include <map>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -12,22 +13,17 @@ void PhysicalDevice::pickPhysicalDevice(VkInstance &instance,
                                         VkSurfaceKHR &surface) {
   uint32_t deviceCount = 0;
   vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-
   if (deviceCount == 0)
     throw std::runtime_error("failed to find GPUs with Vulkan support!");
-
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-
   std::multimap<int, VkPhysicalDevice> candidates;
-
   for (const auto &device : devices) {
     int score = rateDeviceSuitable(device, surface);
     candidates.insert(std::make_pair(score, device));
   }
   VkPhysicalDeviceProperties deviceProperties;
   vkGetPhysicalDeviceProperties(candidates.rbegin()->second, &deviceProperties);
-
   std::cout << "device pick : " << deviceProperties.deviceName << std::endl;
   if (candidates.rbegin()->first > 0)
     physicalDevice = candidates.rbegin()->second;
@@ -40,6 +36,21 @@ int PhysicalDevice::rateDeviceSuitable(const VkPhysicalDevice &device,
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
   QueueFamilyIndices indices = findQueueFamilies(device, surface);
+  bool extensionSupported = checkDeviceExtensionSupport(device);
+
+  if (!extensionSupported) {
+    std::cerr << "one device does not support all the required extension\n";
+    return (0);
+  }
+  bool swapChainAdequate = false;
+  SwapChainSupportDetails swapChainSupport =
+      querySwapChainSupport(device, surface);
+  swapChainAdequate = !swapChainSupport.formats.empty() &&
+                      !swapChainSupport.presentModes.empty();
+  if (!swapChainAdequate) {
+    std::cerr << "Swapchain can't be initialize in a certains device\n";
+    return (0);
+  }
 
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
   vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
@@ -52,6 +63,21 @@ int PhysicalDevice::rateDeviceSuitable(const VkPhysicalDevice &device,
     return (0);
   }
   return (score);
+}
+
+bool PhysicalDevice::checkDeviceExtensionSupport(
+    const VkPhysicalDevice &device) {
+  uint32_t extensionCount;
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+                                       nullptr);
+  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+  vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount,
+                                       availableExtensions.data());
+  std::set<std::string> requiredExtensions(deviceExtensions.begin(),
+                                           deviceExtensions.end());
+  for (const auto &extension : availableExtensions)
+    requiredExtensions.erase(extension.extensionName);
+  return requiredExtensions.empty();
 }
 
 QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device,
@@ -80,5 +106,3 @@ QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &device,
 }
 
 VkPhysicalDevice &PhysicalDevice::getPhysicalDevice() { return physicalDevice; }
-
-PhysicalDevice::~PhysicalDevice() {}

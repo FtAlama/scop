@@ -10,6 +10,7 @@
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "5_swapchain.hpp"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -33,6 +34,7 @@ private:
 	LogicalDevice vk_Ldevice;
 	WindowSurface win_surface;
   VkQueue graphicsQueue;
+	SwapChain swapchain;
 	VkQueue presentQueue;
 
   void initVulkan();

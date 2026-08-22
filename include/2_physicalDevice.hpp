@@ -2,17 +2,21 @@
 
 #define PHYSICAL_DEVICE_HPP
 
+#include <vector>
 #include <vulkan/vulkan_core.h>
+
+const std::vector<const char *> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 class PhysicalDevice {
 public:
   void pickPhysicalDevice(VkInstance &, VkSurfaceKHR &);
-	VkPhysicalDevice &getPhysicalDevice();
-	~PhysicalDevice();
+  VkPhysicalDevice &getPhysicalDevice();
 
 private:
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   int rateDeviceSuitable(const VkPhysicalDevice &, VkSurfaceKHR &);
+  bool checkDeviceExtensionSupport(const VkPhysicalDevice &);
 };
 
 #endif
