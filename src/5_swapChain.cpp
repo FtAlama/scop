@@ -1,4 +1,4 @@
-#include "5_swapchain.hpp"
+#include "5_swapChain.hpp"
 #include "queueFamilies.hpp"
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -103,9 +103,18 @@ void SwapChain::CreateSwapChain(const VkPhysicalDevice &p_device,
   swapChainImages.resize(imageCount);
   vkGetSwapchainImagesKHR(device, swapChain, &imageCount,
                           swapChainImages.data());
+
+  swapChainImageFormat = surfaceFormat.format;
+  swapChainExtent = extent;
 }
 
 VkSwapchainKHR &SwapChain::getSwapChain() { return (swapChain); }
+
+std::vector<VkImage> &SwapChain::getChainImage() { return (swapChainImages); }
+
+VkFormat &SwapChain::getSwapChainImageFormat() {
+  return (swapChainImageFormat);
+}
 
 void SwapChain::destroySwapChain(VkDevice &device) {
   vkDestroySwapchainKHR(device, swapChain, nullptr);

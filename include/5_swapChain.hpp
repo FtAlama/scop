@@ -13,6 +13,9 @@ public:
                        VkSurfaceKHR &surface, GLFWwindow *);
   VkSwapchainKHR &getSwapChain();
   void destroySwapChain(VkDevice &);
+	std::vector<VkImage> &getChainImage();
+	VkFormat &getSwapChainImageFormat();
+	VkExtent2D &getExtent();
 
 private:
   VkSurfaceFormatKHR
@@ -21,6 +24,8 @@ private:
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &, GLFWwindow *);
   VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
+	VkFormat swapChainImageFormat;
+	VkExtent2D swapChainExtent;
 };
 
 #endif

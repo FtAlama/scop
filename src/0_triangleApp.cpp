@@ -28,6 +28,9 @@ void TriangleApplication::initVulkan() {
   swapchain.CreateSwapChain(vk_Pdevice.getPhysicalDevice(),
                             vk_Ldevice.getDevice(), win_surface.get_surface(),
                             window);
+  imageView.createImageViews(swapchain.getChainImage(),
+                             swapchain.getSwapChainImageFormat(),
+                             vk_Ldevice.getDevice());
 }
 
 void TriangleApplication::mainLoop() {
@@ -77,6 +80,7 @@ void TriangleApplication::createInstance() {
 void TriangleApplication::cleanup() {
   if (enableValidationLayers)
     DestroyDebugUtilsMessengerEXT(instance, layers.getDebugMsg(), nullptr);
+  imageView.destroyImageViews(vk_Ldevice.getDevice());
 	swapchain.destroySwapChain(vk_Ldevice.getDevice());
   vk_Ldevice.destroyDevice();
   win_surface.destroySurface(instance);
