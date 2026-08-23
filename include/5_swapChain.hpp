@@ -2,6 +2,7 @@
 
 #define SWAP_CHAIN_HPP
 
+#include "vk_context.hpp"
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -9,13 +10,12 @@
 
 class SwapChain {
 public:
-  void CreateSwapChain(const VkPhysicalDevice &device, const VkDevice &,
-                       VkSurfaceKHR &surface, GLFWwindow *);
+  SwapChain(vk_context &, GLFWwindow *);
   VkSwapchainKHR &getSwapChain();
-  void destroySwapChain(VkDevice &);
-	std::vector<VkImage> &getChainImage();
-	VkFormat &getSwapChainImageFormat();
-	VkExtent2D &getExtent();
+  std::vector<VkImage> &getChainImage();
+  VkFormat &getSwapChainImageFormat();
+  VkExtent2D &getExtent();
+  ~SwapChain();
 
 private:
   VkSurfaceFormatKHR
@@ -23,9 +23,10 @@ private:
   VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &);
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &, GLFWwindow *);
   VkSwapchainKHR swapChain;
-	std::vector<VkImage> swapChainImages;
-	VkFormat swapChainImageFormat;
-	VkExtent2D swapChainExtent;
+  std::vector<VkImage> swapChainImages;
+  VkFormat swapChainImageFormat;
+  VkExtent2D swapChainExtent;
+  vk_context &ctx;
 };
 
 #endif

@@ -3,18 +3,17 @@
 #define WINDOW_SURFACE_HPP
 
 #define GLFW_INCLUDE_VULKAN
+
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
-
+#include "vk_context.hpp"
 
 class WindowSurface {
 public:
-	void createSurface(VkInstance &, GLFWwindow *);
-	void destroySurface(VkInstance &);
-	VkSurfaceKHR &get_surface();
+	WindowSurface(vk_context &, GLFWwindow *);
+	~WindowSurface();
 private:
-	VkSurfaceKHR surface;
+	vk_context &surface_ctx;
 };
 
 #endif

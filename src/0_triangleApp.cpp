@@ -14,32 +14,27 @@ void TriangleApplication::initVulkan() {
   glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-  window = glfwCreateWindow(WIDTH, HEIGHT, "Scop", nullptr, nullptr);
+  window.emplace(WIDTH, HEIGHT, "Scop");
   if (!window)
     throw std::runtime_error("failed to create GLFW window");
 
-  createInstance();
-  layers.setupDebugMessenger(instance);
-  win_surface.createSurface(instance, window);
-  vk_Pdevice.pickPhysicalDevice(instance, win_surface.get_surface());
-  vk_Ldevice.createLogicalDevice(vk_Pdevice.getPhysicalDevice(),
-                                 win_surface.get_surface(), graphicsQueue,
-                                 presentQueue);
-  swapchain.CreateSwapChain(vk_Pdevice.getPhysicalDevice(),
-                            vk_Ldevice.getDevice(), win_surface.get_surface(),
-                            window);
-  imageView.createImageViews(swapchain.getChainImage(),
-                             swapchain.getSwapChainImageFormat(),
-                             vk_Ldevice.getDevice());
+  instance.emplace(ctx, layers);
+  layers.setupDebugMessenger(ctx.instance);
+  win_surface.emplace(ctx, window->get());
+  vk_Pdevice.emplace(ctx);
+  vk_Ldevice.emplace(ctx);
+  swapchain.emplace(ctx, window->get());
+  imageView.emplace(ctx, swapchain->getChainImage(),
+                    swapchain->getSwapChainImageFormat());
 }
 
 void TriangleApplication::mainLoop() {
-  while (!glfwWindowShouldClose(window)) {
+  while (!window->shouldClose()) {
     glfwPollEvents();
   }
 }
 
-void TriangleApplication::createInstance() {
+Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {
   if (enableValidationLayers && !layers.checkValidationSupport()) {
     throw std::runtime_error("validation layers request, but not available!");
   }
@@ -72,23 +67,9 @@ void TriangleApplication::createInstance() {
     createInfo.pNext = nullptr;
   }
 
-  if (vkCreateInstance(&createInfo, nullptr, &this->instance) != VK_SUCCESS) {
+  if (vkCreateInstance(&createInfo, nullptr, &ctx.instance) != VK_SUCCESS) {
     throw std::runtime_error("failed to create instance!");
   }
 }
 
-void TriangleApplication::cleanup() {
-  if (enableValidationLayers)
-    DestroyDebugUtilsMessengerEXT(instance, layers.getDebugMsg(), nullptr);
-  imageView.destroyImageViews(vk_Ldevice.getDevice());
-	swapchain.destroySwapChain(vk_Ldevice.getDevice());
-  vk_Ldevice.destroyDevice();
-  win_surface.destroySurface(instance);
-  vkDestroyInstance(instance, nullptr);
-  glfwDestroyWindow(window);
-  glfwTerminate();
-}
-
-TriangleApplication::TriangleApplication() {}
-
-TriangleApplication::~TriangleApplication() {}
+Instance::~Instance() { vkDestroyInstance(ctx.instance, nullptr); }

@@ -1,18 +1,15 @@
-#include "3_logicalDevice.hpp"
 #include "1_validationLayers.hpp"
-#include "2_physicalDevice.hpp"
+#include "3_physicalDevice.hpp"
+#include "4_logicalDevice.hpp"
 #include "queueFamilies.hpp"
 #include <cstdint>
 #include <set>
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-void LogicalDevice::createLogicalDevice(VkPhysicalDevice &physicalDevice,
-                                        VkSurfaceKHR &surface,
-                                        VkQueue &graphicsQueue,
-                                        VkQueue &presentQueue) {
-
-  QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+LogicalDevice::LogicalDevice(vk_context &ctx) : ctx(ctx) {
+  QueueFamilyIndices indices =
+      findQueueFamilies(ctx.physicalDevice, ctx.surface);
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),
                                             indices.presentFamily.value()};
@@ -25,6 +22,7 @@ void LogicalDevice::createLogicalDevice(VkPhysicalDevice &physicalDevice,
     queueCreateInfo.pQueuePriorities = &queuePriority;
     queueCreateInfos.push_back(queueCreateInfo);
   }
+
   VkPhysicalDeviceFeatures deviceFeatures{};
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -43,16 +41,16 @@ void LogicalDevice::createLogicalDevice(VkPhysicalDevice &physicalDevice,
   } else
     createInfo.enabledLayerCount = 0;
 
-  if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) !=
+  if (vkCreateDevice(ctx.physicalDevice, &createInfo, nullptr, &ctx.device) !=
       VK_SUCCESS) {
     throw std::runtime_error("failed to create logical device");
   }
-  vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-  vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+  vkGetDeviceQueue(ctx.device, indices.graphicsFamily.value(), 0,
+                   &ctx.graphicsQueue);
+  vkGetDeviceQueue(ctx.device, indices.presentFamily.value(), 0,
+                   &ctx.presentQueue);
 
   std::cout << "Logical device & queue familie create\n";
 }
 
-VkDevice &LogicalDevice::getDevice() { return (device); }
-
-void LogicalDevice::destroyDevice() { vkDestroyDevice(device, nullptr); }
+LogicalDevice::~LogicalDevice() { vkDestroyDevice(ctx.device, nullptr); }

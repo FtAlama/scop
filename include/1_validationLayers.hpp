@@ -29,9 +29,11 @@ public:
   std::vector<const char *> getRequiredExtensions();
   void setupDebugMessenger(VkInstance &);
   VkDebugUtilsMessengerEXT &getDebugMsg();
+	~ValidationLayers();
 
 private:
-  VkDebugUtilsMessengerEXT debugMessenger;
+	VkInstance instance = VK_NULL_HANDLE;
+  VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
   static VKAPI_ATTR VkBool32 VKAPI_CALL
   debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageServity,
                 VkDebugUtilsMessageTypeFlagsEXT messageType,

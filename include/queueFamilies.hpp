@@ -8,24 +8,23 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
 
-typedef struct s_queueFamily {
+struct QueueFamilyIndices {
   std::optional<uint32_t> graphicsFamily;
   std::optional<uint32_t> presentFamily;
   bool isComplete() {
     return graphicsFamily.has_value() && presentFamily.has_value();
   }
-} QueueFamilyIndices;
+};
 
-typedef struct s_swapChainSupportDetails {
+struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;
   std::vector<VkSurfaceFormatKHR> formats;
   std::vector<VkPresentModeKHR> presentModes;
-} SwapChainSupportDetails;
+};
 
 QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &, VkSurfaceKHR &);
 
-SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice &, VkSurfaceKHR &);
-
-
+SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice &,
+                                              VkSurfaceKHR &);
 
 #endif

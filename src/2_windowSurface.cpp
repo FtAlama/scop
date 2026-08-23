@@ -1,4 +1,4 @@
-#include "4_windowSurface.hpp"
+#include "2_windowSurface.hpp"
 #include "queueFamilies.hpp"
 #include <cstdint>
 #include <iostream>
@@ -6,18 +6,17 @@
 #include <sys/types.h>
 #include <vulkan/vulkan_core.h>
 
-void WindowSurface::createSurface(VkInstance &instance, GLFWwindow *window) {
-  if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
-      VK_SUCCESS)
+WindowSurface::WindowSurface(vk_context &ctx, GLFWwindow *window)
+    : surface_ctx(ctx) {
+  if (glfwCreateWindowSurface(surface_ctx.instance, window, nullptr,
+                              &surface_ctx.surface) != VK_SUCCESS)
     throw std::runtime_error("failed to create window surface");
   std::cout << "Window surface create\n";
 }
 
-void WindowSurface::destroySurface(VkInstance &instance) {
-  vkDestroySurfaceKHR(instance, surface, nullptr);
+WindowSurface::~WindowSurface() {
+  vkDestroySurfaceKHR(surface_ctx.instance, surface_ctx.surface, nullptr);
 }
-
-VkSurfaceKHR &WindowSurface::get_surface() { return (surface); }
 
 SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice &device,
                                               VkSurfaceKHR &surface) {

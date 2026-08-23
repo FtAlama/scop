@@ -12,9 +12,9 @@ add_executable(scop
 	src/main.cpp
 	src/0_triangleApp.cpp
 	src/1_validationLayers.cpp
-	src/2_physicalDevice.cpp
-	src/3_logicalDevice.cpp
-	src/4_windowSurface.cpp
+	src/2_windowSurface.cpp
+	src/3_physicalDevice.cpp
+	src/4_logicalDevice.cpp
 	src/5_swapChain.cpp
 	src/6_imageViews.cpp
 )

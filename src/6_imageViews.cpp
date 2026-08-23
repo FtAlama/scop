@@ -3,9 +3,9 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-void ImageViews::createImageViews(std::vector<VkImage> &swapChainImages,
-                                  VkFormat &swapChainImageFormat,
-                                  VkDevice &device) {
+ImageViews::ImageViews(vk_context &ctx, std::vector<VkImage> &swapChainImages,
+                       VkFormat &swapChainImageFormat)
+    : ctx(ctx) {
   swapChainImageViews.resize(swapChainImages.size());
 
   for (uint32_t i = 0; i < swapChainImages.size(); i++) {
@@ -23,14 +23,14 @@ void ImageViews::createImageViews(std::vector<VkImage> &swapChainImages,
     createInfo.subresourceRange.baseMipLevel = 0;
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.layerCount = 1;
-    if (vkCreateImageView(device, &createInfo, nullptr,
+    if (vkCreateImageView(ctx.device, &createInfo, nullptr,
                           &swapChainImageViews[i]) != VK_SUCCESS)
       throw std::runtime_error("failed to create image views!");
   }
 }
 
-void ImageViews::destroyImageViews(VkDevice &device) {
+ImageViews::~ImageViews() {
   for (auto imageView : swapChainImageViews) {
-    vkDestroyImageView(device, imageView, nullptr);
+    vkDestroyImageView(ctx.device, imageView, nullptr);
   }
 }

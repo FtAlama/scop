@@ -75,8 +75,9 @@ std::vector<const char *> ValidationLayers::getRequiredExtensions() {
 void ValidationLayers::setupDebugMessenger(VkInstance &instance) {
   if (!enableValidationLayers)
     return;
+  this->instance = instance;
   VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	populateDebugMessengerCreateInfo(createInfo);
+  populateDebugMessengerCreateInfo(createInfo);
 
   if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr,
                                    &debugMessenger) != VK_SUCCESS)
@@ -85,4 +86,9 @@ void ValidationLayers::setupDebugMessenger(VkInstance &instance) {
 
 VkDebugUtilsMessengerEXT &ValidationLayers::getDebugMsg() {
   return debugMessenger;
+}
+
+ValidationLayers::~ValidationLayers() {
+  if (enableValidationLayers)
+    DestroyDebugUtilsMessengerEXT(instance, getDebugMsg(), nullptr);
 }
