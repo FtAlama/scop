@@ -1,4 +1,4 @@
-#include "0_triangleApplication.hpp"
+#include "setup/0_triangleApplication.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include <stdexcept>

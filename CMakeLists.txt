@@ -10,17 +10,18 @@ find_package(glfw3 REQUIRED)
 
 add_executable(scop 
 	src/main.cpp
-	src/0_triangleApp.cpp
-	src/1_validationLayers.cpp
-	src/2_windowSurface.cpp
-	src/3_physicalDevice.cpp
-	src/4_logicalDevice.cpp
-	src/5_swapChain.cpp
-	src/6_imageViews.cpp
+	src/0_setup/0_triangleApp.cpp
+	src/0_setup/1_validationLayers.cpp
+	src/0_setup/2_windowSurface.cpp
+	src/0_setup/3_physicalDevice.cpp
+	src/0_setup/4_logicalDevice.cpp
+	src/0_setup/5_swapChain.cpp
+	src/0_setup/6_imageViews.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
 target_include_directories(scop PRIVATE include)
+target_include_directories(scop PRIVATE include/setup)
 target_include_directories(scop SYSTEM PRIVATE ${Vulkan_INCLUDE_DIR})
 target_link_libraries(scop PRIVATE Vulkan::Vulkan glfw)
 target_compile_options(scop PRIVATE -Wall -Wextra -Werror)

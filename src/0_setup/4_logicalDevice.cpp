@@ -1,6 +1,6 @@
-#include "1_validationLayers.hpp"
-#include "3_physicalDevice.hpp"
-#include "4_logicalDevice.hpp"
+#include "setup/1_validationLayers.hpp"
+#include "setup/3_physicalDevice.hpp"
+#include "setup/4_logicalDevice.hpp"
 #include "queueFamilies.hpp"
 #include <cstdint>
 #include <set>
