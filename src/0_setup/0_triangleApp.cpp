@@ -26,6 +26,7 @@ void TriangleApplication::initVulkan() {
   swapchain.emplace(ctx, window->get());
   imageView.emplace(ctx, swapchain->getChainImage(),
                     swapchain->getSwapChainImageFormat());
+	graphicsPipeline.emplace(ctx);
 }
 
 void TriangleApplication::mainLoop() {

@@ -12,6 +12,7 @@
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include "5_swapChain.hpp"
+#include "pipeline/0_graphics_pipeline.hpp"
 #include <GLFW/glfw3.h>
 #include <optional>
 
@@ -60,6 +61,7 @@ public:
   }
 
 private:
+  std::optional<GraphicsPipeline> graphicsPipeline;
   std::optional<GlfwWindow> window;
   vk_context ctx;
   std::optional<Instance> instance;
