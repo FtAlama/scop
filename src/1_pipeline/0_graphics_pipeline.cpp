@@ -8,10 +8,10 @@
 #include <vulkan/vulkan_core.h>
 
 static std::vector<char> readFile(const std::string &filename) {
-  std::ifstream file(filename, std::ios::ate | std::ios::binary);
+  std::ifstream file(filename, std::ios::binary | std::ios::ate);
 
   if (!file.is_open())
-    throw std::runtime_error("failed to open file!");
+    throw std::runtime_error(std::string{"failed to open file : " + filename});
 
   size_t fileSize = (size_t)file.tellg();
   std::vector<char> buffer(fileSize);
@@ -22,8 +22,8 @@ static std::vector<char> readFile(const std::string &filename) {
 }
 
 GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
-  auto vertShaderCode = readFile("shaders/shade.vert");
-  auto fragShaderCode = readFile("shaders/shade.frag");
+  auto vertShaderCode = readFile("shaders/shader.vert");
+  auto fragShaderCode = readFile("shaders/shader.frag");
 
   vertShaderModule = createShaderModule(vertShaderCode);
   fragShaderModule = createShaderModule(fragShaderCode);
@@ -43,6 +43,8 @@ GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
   fragShaderStageInfo.pName = "main";
   shaderStages[0] = vertShaderStageInfo;
   shaderStages[1] = fragShaderStageInfo;
+  vkDestroyShaderModule(ctx.device, fragShaderModule, nullptr);
+  vkDestroyShaderModule(ctx.device, vertShaderModule, nullptr);
 }
 
 VkShaderModule
@@ -58,7 +60,4 @@ GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
   return (shaderModule);
 }
 
-GraphicsPipeline::~GraphicsPipeline() {
-  vkDestroyShaderModule(ctx.device, fragShaderModule, nullptr);
-  vkDestroyShaderModule(ctx.device, vertShaderModule, nullptr);
-}
+GraphicsPipeline::~GraphicsPipeline() {}
