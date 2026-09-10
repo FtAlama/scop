@@ -3,3 +3,6 @@ build
 .misc
 scop
 .cache
+compile.sh
+frag.spv
+vert.spv

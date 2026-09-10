@@ -61,7 +61,6 @@ public:
   }
 
 private:
-  std::optional<GraphicsPipeline> graphicsPipeline;
   std::optional<GlfwWindow> window;
   vk_context ctx;
   std::optional<Instance> instance;
@@ -71,6 +70,7 @@ private:
   std::optional<LogicalDevice> vk_Ldevice;
   std::optional<SwapChain> swapchain;
   std::optional<ImageViews> imageView;
+  std::optional<GraphicsPipeline> graphicsPipeline;
 
   void initVulkan();
   void mainLoop();

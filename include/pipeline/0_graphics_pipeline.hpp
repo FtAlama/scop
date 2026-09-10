@@ -17,6 +17,7 @@ private:
   VkPipelineShaderStageCreateInfo shaderStages[2];
   VkShaderModule vertShaderModule;
   VkShaderModule fragShaderModule;
+	VkPipelineLayout pipelineLayout;
 };
 
 #endif
