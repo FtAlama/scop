@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <fstream>
 #include <ios>
-#include <numbers>
 #include <stdexcept>
 #include <vector>
 #include <vulkan/vulkan_core.h>
