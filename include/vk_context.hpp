@@ -12,6 +12,9 @@ struct vk_context {
   VkQueue graphicsQueue = VK_NULL_HANDLE;
   VkQueue presentQueue = VK_NULL_HANDLE;
   VkExtent2D swapChainExtent;
+  VkFormat swapChainImageFormat;
+  VkRenderPass renderPass = VK_NULL_HANDLE;
+	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 };
 
 #endif

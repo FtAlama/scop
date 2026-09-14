@@ -17,7 +17,13 @@ private:
   VkPipelineShaderStageCreateInfo shaderStages[2];
   VkShaderModule vertShaderModule;
   VkShaderModule fragShaderModule;
-	VkPipelineLayout pipelineLayout;
+  void vertexInputInfo();
+  void inputAssambly();
+  void viewportState();
+  void rasterizer();
+  void multisampling();
+  void colorBlending();
+  void dynamicState();
 };
 
 #endif

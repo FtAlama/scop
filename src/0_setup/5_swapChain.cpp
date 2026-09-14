@@ -57,7 +57,8 @@ SwapChain::SwapChain(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
 
   swapChainImageFormat = surfaceFormat.format;
   swapChainExtent = extent;
-	ctx.swapChainExtent = swapChainExtent;
+  ctx.swapChainExtent = swapChainExtent;
+  ctx.swapChainImageFormat = swapChainImageFormat;
 }
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(
