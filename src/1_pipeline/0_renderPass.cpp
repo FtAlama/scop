@@ -1,4 +1,4 @@
-#include "pipeline/1_renderPass.hpp"
+#include "pipeline/0_renderPass.hpp"
 #include "vk_context.hpp"
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
@@ -11,8 +11,8 @@ RenderPass::RenderPass(vk_context &ctx) : ctx(ctx) {
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
   VkAttachmentReference colorAttachmentRef{};
   colorAttachmentRef.attachment = 0;
@@ -23,17 +23,18 @@ RenderPass::RenderPass(vk_context &ctx) : ctx(ctx) {
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
-	VkRenderPassCreateInfo renderPassInfo{};
-	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-	renderPassInfo.attachmentCount = 1;
-	renderPassInfo.pAttachments = &colorAttachment;
-	renderPassInfo.subpassCount = 1;
-	renderPassInfo.pSubpasses = &subpass;
+  VkRenderPassCreateInfo renderPassInfo{};
+  renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  renderPassInfo.attachmentCount = 1;
+  renderPassInfo.pAttachments = &colorAttachment;
+  renderPassInfo.subpassCount = 1;
+  renderPassInfo.pSubpasses = &subpass;
 
-	if (vkCreateRenderPass(ctx.device, &renderPassInfo, nullptr, &ctx.renderPass) != VK_SUCCESS)
-		throw std::runtime_error("failed to create render passs!");
+  if (vkCreateRenderPass(ctx.device, &renderPassInfo, nullptr,
+                         &ctx.renderPass) != VK_SUCCESS)
+    throw std::runtime_error("failed to create render passs!");
 }
 
 RenderPass::~RenderPass() {
-	vkDestroyRenderPass(ctx.device, ctx.renderPass, nullptr);
+  vkDestroyRenderPass(ctx.device, ctx.renderPass, nullptr);
 }

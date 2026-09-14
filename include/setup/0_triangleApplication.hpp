@@ -12,8 +12,8 @@
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include "5_swapChain.hpp"
-#include "pipeline/0_graphicsPipeline.hpp"
-#include "pipeline/1_renderPass.hpp"
+#include "pipeline/0_renderPass.hpp"
+#include "pipeline/1_graphicsPipeline.hpp"
 #include <GLFW/glfw3.h>
 #include <optional>
 
@@ -71,13 +71,12 @@ private:
   std::optional<LogicalDevice> vk_Ldevice;
   std::optional<SwapChain> swapchain;
   std::optional<ImageViews> imageView;
-	std::optional<RenderPass> renderPass;
+  std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
 
   void initVulkan();
   void mainLoop();
   void createInstance();
-
   void createLogicalDevice();
 };
 

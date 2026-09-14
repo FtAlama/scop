@@ -1,4 +1,4 @@
-#include "pipeline/0_graphicsPipeline.hpp"
+#include "pipeline/1_graphicsPipeline.hpp"
 #include "vk_context.hpp"
 #include <cstdint>
 #include <fstream>
@@ -21,24 +21,20 @@ static std::vector<char> readFile(const std::string &filename) {
   return (buffer);
 }
 
-void GraphicsPipeline::vertexInputInfo() {
-  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+void GraphicsPipeline::vertexInput() {
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
   vertexInputInfo.vertexBindingDescriptionCount = 0;
   vertexInputInfo.pVertexBindingDescriptions = nullptr;
   vertexInputInfo.vertexAttributeDescriptionCount = 0;
   vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-  (void)vertexInputInfo;
 }
 
-void GraphicsPipeline::inputAssambly() {
-  VkPipelineInputAssemblyStateCreateInfo inputAssambly{};
+void GraphicsPipeline::inputAsm() {
   inputAssambly.sType =
       VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-  inputAssambly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+  inputAssambly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   inputAssambly.primitiveRestartEnable = VK_FALSE;
-  (void)inputAssambly;
 }
 
 void GraphicsPipeline::viewportState() {
@@ -54,19 +50,17 @@ void GraphicsPipeline::viewportState() {
   scissor.offset = {0, 0};
   scissor.extent = ctx.swapChainExtent;
 
-  VkPipelineViewportStateCreateInfo viewportState{};
-  viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-  viewportState.viewportCount = 1;
-  viewportState.pViewports = &viewport;
-  viewportState.scissorCount = 1;
-  viewportState.pScissors = &scissor;
-  (void)viewportState;
+  vpState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  vpState.viewportCount = 1;
+  vpState.pViewports = &viewport;
+  vpState.scissorCount = 1;
+  vpState.pScissors = &scissor;
 }
 
-void GraphicsPipeline::rasterizer() {
-  VkPipelineRasterizationStateCreateInfo rasterizer{};
+void GraphicsPipeline::set_rasterization() {
   rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
   rasterizer.depthClampEnable = VK_FALSE;
+  rasterizer.rasterizerDiscardEnable = VK_FALSE;
   rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
   rasterizer.lineWidth = 1.0f;
   rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
@@ -75,11 +69,9 @@ void GraphicsPipeline::rasterizer() {
   rasterizer.depthBiasConstantFactor = 0.0f;
   rasterizer.depthBiasClamp = 0.0f;
   rasterizer.depthBiasSlopeFactor = 0.0f;
-  (void)rasterizer;
 }
 
-void GraphicsPipeline::multisampling() {
-  VkPipelineMultisampleStateCreateInfo multisampling{};
+void GraphicsPipeline::multisample() {
   multisampling.sType =
       VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
   multisampling.sampleShadingEnable = VK_FALSE;
@@ -88,11 +80,9 @@ void GraphicsPipeline::multisampling() {
   multisampling.pSampleMask = nullptr;
   multisampling.alphaToCoverageEnable = VK_FALSE;
   multisampling.alphaToOneEnable = VK_FALSE;
-  (void)multisampling;
 }
 
-void GraphicsPipeline::colorBlending() {
-  VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+void GraphicsPipeline::colorBlend() {
   colorBlendAttachment.colorWriteMask =
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
       VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -104,7 +94,6 @@ void GraphicsPipeline::colorBlending() {
   colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
   colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
-  VkPipelineColorBlendStateCreateInfo colorBlending{};
   colorBlending.sType =
       VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
   colorBlending.logicOpEnable = VK_FALSE;
@@ -115,17 +104,42 @@ void GraphicsPipeline::colorBlending() {
   colorBlending.blendConstants[1] = 0.0f;
   colorBlending.blendConstants[2] = 0.0f;
   colorBlending.blendConstants[3] = 0.0f;
-  (void)colorBlending;
 }
 
-void GraphicsPipeline::dynamicState() {
-  std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-                                               VK_DYNAMIC_STATE_LINE_WIDTH};
-  VkPipelineDynamicStateCreateInfo dynamicState{};
+void GraphicsPipeline::dynamicSte() {
+  static std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
+                                                      VK_DYNAMIC_STATE_SCISSOR};
+
   dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
   dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
   dynamicState.pDynamicStates = dynamicStates.data();
-  (void)dynamicState;
+}
+
+void GraphicsPipeline::createGraphicsPipeline() {
+  VkGraphicsPipelineCreateInfo pipelineInfo{};
+  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipelineInfo.stageCount = 2;
+  pipelineInfo.pStages = shaderStages;
+
+  pipelineInfo.pVertexInputState = &vertexInputInfo;
+  pipelineInfo.pInputAssemblyState = &inputAssambly;
+  pipelineInfo.pViewportState = &vpState;
+  pipelineInfo.pRasterizationState = &rasterizer;
+  pipelineInfo.pMultisampleState = &multisampling;
+  pipelineInfo.pDepthStencilState = nullptr;
+  pipelineInfo.pColorBlendState = &colorBlending;
+  pipelineInfo.pDynamicState = &dynamicState;
+
+  pipelineInfo.layout = ctx.pipelineLayout;
+  pipelineInfo.renderPass = ctx.renderPass;
+  pipelineInfo.subpass = 0;
+
+  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+  pipelineInfo.basePipelineIndex = -1;
+
+  if (vkCreateGraphicsPipelines(ctx.device, VK_NULL_HANDLE, 1, &pipelineInfo,
+                                nullptr, &graphicsPipeline) != VK_SUCCESS)
+    throw std::runtime_error("failed to create graphics pipeline!");
 }
 
 GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
@@ -151,13 +165,13 @@ GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
   shaderStages[0] = vertShaderStageInfo;
   shaderStages[1] = fragShaderStageInfo;
 
-  vertexInputInfo();
-  inputAssambly();
+  vertexInput();
+  inputAsm();
   viewportState();
-  rasterizer();
-  multisampling();
-  colorBlending();
-  dynamicState();
+  set_rasterization();
+  multisample();
+  colorBlend();
+  dynamicSte();
 
   VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
   pipelineLayoutCreateInfo.sType =
@@ -170,7 +184,7 @@ GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
   if (vkCreatePipelineLayout(ctx.device, &pipelineLayoutCreateInfo, nullptr,
                              &ctx.pipelineLayout) != VK_SUCCESS)
     throw std::runtime_error("failed to create pipeline layout!");
-	
+  createGraphicsPipeline();
   vkDestroyShaderModule(ctx.device, fragShaderModule, nullptr);
   vkDestroyShaderModule(ctx.device, vertShaderModule, nullptr);
 }
@@ -189,5 +203,6 @@ GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
-	vkDestroyPipelineLayout(ctx.device, ctx.pipelineLayout, nullptr);
+  vkDestroyPipeline(ctx.device, graphicsPipeline, nullptr);
+  vkDestroyPipelineLayout(ctx.device, ctx.pipelineLayout, nullptr);
 }
