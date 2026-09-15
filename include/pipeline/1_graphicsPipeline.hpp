@@ -22,9 +22,12 @@ private:
   VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
   VkPipelineInputAssemblyStateCreateInfo inputAssambly{};
   VkPipelineViewportStateCreateInfo vpState{};
+  VkViewport viewport{};
+  VkRect2D scissor{};
   VkPipelineRasterizationStateCreateInfo rasterizer{};
   VkPipelineMultisampleStateCreateInfo multisampling{};
   VkPipelineColorBlendStateCreateInfo colorBlending{};
+  std::vector<VkDynamicState> dynamicStates;
   VkPipelineDynamicStateCreateInfo dynamicState{};
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
   void vertexInput();

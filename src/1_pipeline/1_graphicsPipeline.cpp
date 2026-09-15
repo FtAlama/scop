@@ -38,7 +38,6 @@ void GraphicsPipeline::inputAsm() {
 }
 
 void GraphicsPipeline::viewportState() {
-  VkViewport viewport{};
   viewport.x = 0.0f;
   viewport.y = 0.0f;
   viewport.width = (float)ctx.swapChainExtent.width;
@@ -46,7 +45,6 @@ void GraphicsPipeline::viewportState() {
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 
-  VkRect2D scissor{};
   scissor.offset = {0, 0};
   scissor.extent = ctx.swapChainExtent;
 
@@ -107,8 +105,7 @@ void GraphicsPipeline::colorBlend() {
 }
 
 void GraphicsPipeline::dynamicSte() {
-  static std::vector<VkDynamicState> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT,
-                                                      VK_DYNAMIC_STATE_SCISSOR};
+  dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
   dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
   dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
