@@ -19,6 +19,7 @@ add_executable(scop
 	src/0_setup/6_imageViews.cpp
 	src/1_pipeline/0_renderPass.cpp
 	src/1_pipeline/1_graphicsPipeline.cpp
+	src/2_frames/0_framebuffers.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)

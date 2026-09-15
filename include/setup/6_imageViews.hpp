@@ -13,7 +13,6 @@ public:
 	void destroyImageViews(VkDevice &);
 	~ImageViews();
 private:
-	std::vector<VkImageView> swapChainImageViews;
 	vk_context &ctx;
 };
 

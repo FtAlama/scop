@@ -3,6 +3,7 @@
 #define VK_CONTEXT_HPP
 
 #include <vulkan/vulkan.h>
+#include <vector>
 
 struct vk_context {
   VkInstance instance = VK_NULL_HANDLE;
@@ -11,10 +12,11 @@ struct vk_context {
   VkSurfaceKHR surface = VK_NULL_HANDLE;
   VkQueue graphicsQueue = VK_NULL_HANDLE;
   VkQueue presentQueue = VK_NULL_HANDLE;
+  VkRenderPass renderPass = VK_NULL_HANDLE;
+  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
   VkExtent2D swapChainExtent;
   VkFormat swapChainImageFormat;
-  VkRenderPass renderPass = VK_NULL_HANDLE;
-	VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+	std::vector<VkImageView> swapChainImageViews;
 };
 
 #endif

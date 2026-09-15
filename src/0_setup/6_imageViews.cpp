@@ -6,7 +6,7 @@
 ImageViews::ImageViews(vk_context &ctx, std::vector<VkImage> &swapChainImages,
                        VkFormat &swapChainImageFormat)
     : ctx(ctx) {
-  swapChainImageViews.resize(swapChainImages.size());
+  ctx.swapChainImageViews.resize(swapChainImages.size());
 
   for (uint32_t i = 0; i < swapChainImages.size(); i++) {
     VkImageViewCreateInfo createInfo{};
@@ -24,13 +24,13 @@ ImageViews::ImageViews(vk_context &ctx, std::vector<VkImage> &swapChainImages,
     createInfo.subresourceRange.levelCount = 1;
     createInfo.subresourceRange.layerCount = 1;
     if (vkCreateImageView(ctx.device, &createInfo, nullptr,
-                          &swapChainImageViews[i]) != VK_SUCCESS)
+                          &ctx.swapChainImageViews[i]) != VK_SUCCESS)
       throw std::runtime_error("failed to create image views!");
   }
 }
 
 ImageViews::~ImageViews() {
-  for (auto imageView : swapChainImageViews) {
+  for (auto imageView : ctx.swapChainImageViews) {
     vkDestroyImageView(ctx.device, imageView, nullptr);
   }
 }
