@@ -13,6 +13,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include "5_swapChain.hpp"
 #include "frames/0_framebuffers.hpp"
+#include "frames/1_commandPool.hpp"
 #include "pipeline/0_renderPass.hpp"
 #include "pipeline/1_graphicsPipeline.hpp"
 #include <GLFW/glfw3.h>
@@ -75,6 +76,8 @@ private:
   std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
   std::optional<Framebuffers> framebuffers;
+	std::optional<CommandPool> commandPool;
+	std::optional<CommandBuffer> commandBuffer;
 
   void initVulkan();
   void mainLoop();

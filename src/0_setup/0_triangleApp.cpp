@@ -29,6 +29,8 @@ void TriangleApplication::initVulkan() {
   renderPass.emplace(ctx);
   graphicsPipeline.emplace(ctx);
   framebuffers.emplace(ctx);
+  commandPool.emplace(ctx);
+  commandBuffer.emplace(ctx);
 }
 
 void TriangleApplication::mainLoop() {

@@ -14,7 +14,6 @@ public:
 
 private:
   VkShaderModule createShaderModule(const std::vector<char> &);
-  VkPipeline graphicsPipeline = VK_NULL_HANDLE;
   vk_context &ctx;
   VkPipelineShaderStageCreateInfo shaderStages[2];
   VkShaderModule vertShaderModule;

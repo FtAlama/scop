@@ -4,7 +4,7 @@
 #include <vulkan/vulkan_core.h>
 
 Framebuffers::Framebuffers(vk_context &ctx) : ctx(ctx) {
-  swapchainFramebuffers.resize(ctx.swapChainImageViews.size());
+  ctx.swapchainFramebuffers.resize(ctx.swapChainImageViews.size());
   for (size_t i = 0; i < ctx.swapChainImageViews.size(); i++) {
     VkImageView attachments[] = {ctx.swapChainImageViews[i]};
     VkFramebufferCreateInfo framebufferInfo{};
@@ -17,12 +17,12 @@ Framebuffers::Framebuffers(vk_context &ctx) : ctx(ctx) {
     framebufferInfo.layers = 1;
 
     if (vkCreateFramebuffer(ctx.device, &framebufferInfo, nullptr,
-                            &swapchainFramebuffers[i]) != VK_SUCCESS)
+                            &ctx.swapchainFramebuffers[i]) != VK_SUCCESS)
       throw std::runtime_error("failed to create framebuffers!");
   }
 }
 
 Framebuffers::~Framebuffers() {
-	for (auto framebuffer : swapchainFramebuffers)
-		vkDestroyFramebuffer(ctx.device, framebuffer, nullptr);
+  for (auto framebuffer : ctx.swapchainFramebuffers)
+    vkDestroyFramebuffer(ctx.device, framebuffer, nullptr);
 }

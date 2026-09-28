@@ -17,6 +17,10 @@ struct vk_context {
   VkExtent2D swapChainExtent;
   VkFormat swapChainImageFormat;
 	std::vector<VkImageView> swapChainImageViews;
+	VkCommandPool commandPool = VK_NULL_HANDLE;
+	std::vector<VkFramebuffer> swapchainFramebuffers;
+  VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+  VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 };
 
 #endif

@@ -40,13 +40,15 @@ void GraphicsPipeline::inputAsm() {
 void GraphicsPipeline::viewportState() {
   viewport.x = 0.0f;
   viewport.y = 0.0f;
-  viewport.width = (float)ctx.swapChainExtent.width;
-  viewport.height = (float)ctx.swapChainExtent.height;
+  viewport.width = static_cast<float>(ctx.swapChainExtent.width);
+  viewport.height = static_cast<float>(ctx.swapChainExtent.height);
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
+//  vkCmdSetViewport(ctx.commandBuffer, 0, 1, &viewport);
 
   scissor.offset = {0, 0};
   scissor.extent = ctx.swapChainExtent;
+//  vkCmdSetScissor(ctx.commandBuffer, 0, 1, &scissor);
 
   vpState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   vpState.viewportCount = 1;
@@ -135,7 +137,7 @@ void GraphicsPipeline::createGraphicsPipeline() {
   pipelineInfo.basePipelineIndex = -1;
 
   if (vkCreateGraphicsPipelines(ctx.device, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                nullptr, &graphicsPipeline) != VK_SUCCESS)
+                                nullptr, &ctx.graphicsPipeline) != VK_SUCCESS)
     throw std::runtime_error("failed to create graphics pipeline!");
 }
 
@@ -200,6 +202,6 @@ GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
-  vkDestroyPipeline(ctx.device, graphicsPipeline, nullptr);
+  vkDestroyPipeline(ctx.device, ctx.graphicsPipeline, nullptr);
   vkDestroyPipelineLayout(ctx.device, ctx.pipelineLayout, nullptr);
 }

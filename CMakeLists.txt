@@ -20,6 +20,7 @@ add_executable(scop
 	src/1_pipeline/0_renderPass.cpp
 	src/1_pipeline/1_graphicsPipeline.cpp
 	src/2_frames/0_framebuffers.cpp
+	src/2_frames/1_commandPool.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
