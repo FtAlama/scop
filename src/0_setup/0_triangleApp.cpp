@@ -31,12 +31,59 @@ void TriangleApplication::initVulkan() {
   framebuffers.emplace(ctx);
   commandPool.emplace(ctx);
   commandBuffer.emplace(ctx);
+  syncObjects.emplace(ctx);
 }
 
 void TriangleApplication::mainLoop() {
   while (!window->shouldClose()) {
     glfwPollEvents();
+    drawFrame();
   }
+	vkDeviceWaitIdle(ctx.device);
+}
+
+void TriangleApplication::drawFrame() {
+  vkWaitForFences(ctx.device, 1, &ctx.inFlightFence, VK_TRUE, UINT64_MAX);
+  vkResetFences(ctx.device, 1, &ctx.inFlightFence);
+
+  uint32_t imageIndex;
+  vkAcquireNextImageKHR(ctx.device, ctx.swapChain, UINT64_MAX,
+                        ctx.imageAvailableSemaphore, VK_NULL_HANDLE,
+                        &imageIndex);
+
+	vkResetCommandBuffer(ctx.commandBuffer, 0);
+	commandBuffer->recordCommandBuffer(imageIndex);
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = {ctx.imageAvailableSemaphore};
+
+	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &ctx.commandBuffer;
+
+	VkSemaphore signalSemaphores[] = {ctx.renderFinishedSemaphore};
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, ctx.inFlightFence) != VK_SUCCESS)
+		throw std::runtime_error("failed to submit draw command buffer!");
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+	VkSwapchainKHR swapchains[] = {ctx.swapChain};
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapchains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = nullptr;
+
+	vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
 }
 
 Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {

@@ -21,11 +21,14 @@ add_executable(scop
 	src/1_pipeline/1_graphicsPipeline.cpp
 	src/2_frames/0_framebuffers.cpp
 	src/2_frames/1_commandPool.cpp
+	src/2_frames/2_syncObjects.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
 target_include_directories(scop PRIVATE include)
 target_include_directories(scop PRIVATE include/setup)
+target_include_directories(scop PRIVATE include/frames)
+target_include_directories(scop PRIVATE include/pipeline)
 target_include_directories(scop SYSTEM PRIVATE ${Vulkan_INCLUDE_DIR})
 target_link_libraries(scop PRIVATE Vulkan::Vulkan glfw)
 target_compile_options(scop PRIVATE -Wall -Wextra -Werror -g2 -D_GLIBCXX_DEBUG)

@@ -19,10 +19,10 @@ class CommandBuffer {
 public:
   CommandBuffer(vk_context &);
   ~CommandBuffer();
+  void recordCommandBuffer(uint32_t);
 
 private:
   vk_context &ctx;
-  void recordCommandBuffer(uint32_t);
 };
 
 #endif

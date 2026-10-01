@@ -21,6 +21,10 @@ struct vk_context {
 	std::vector<VkFramebuffer> swapchainFramebuffers;
   VkPipeline graphicsPipeline = VK_NULL_HANDLE;
   VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+  VkSwapchainKHR swapChain;
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+	VkFence inFlightFence;
 };
 
 #endif

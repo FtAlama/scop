@@ -7,6 +7,7 @@
 #include "3_physicalDevice.hpp"
 #include "4_logicalDevice.hpp"
 #include "6_imageViews.hpp"
+#include "frames/2_syncObjects.hpp"
 #include "vk_context.hpp"
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
@@ -76,13 +77,15 @@ private:
   std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
   std::optional<Framebuffers> framebuffers;
-	std::optional<CommandPool> commandPool;
-	std::optional<CommandBuffer> commandBuffer;
+  std::optional<CommandPool> commandPool;
+  std::optional<CommandBuffer> commandBuffer;
+  std::optional<SyncObjects> syncObjects;
 
   void initVulkan();
   void mainLoop();
   void createInstance();
   void createLogicalDevice();
+  void drawFrame();
 };
 
 #endif

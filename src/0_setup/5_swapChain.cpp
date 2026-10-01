@@ -47,12 +47,12 @@ SwapChain::SwapChain(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
   createInfo.oldSwapchain = VK_NULL_HANDLE;
-  if (vkCreateSwapchainKHR(ctx.device, &createInfo, nullptr, &swapChain) !=
+  if (vkCreateSwapchainKHR(ctx.device, &createInfo, nullptr, &ctx.swapChain) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to create swap chain!");
-  vkGetSwapchainImagesKHR(ctx.device, swapChain, &imageCount, nullptr);
+  vkGetSwapchainImagesKHR(ctx.device, ctx.swapChain, &imageCount, nullptr);
   swapChainImages.resize(imageCount);
-  vkGetSwapchainImagesKHR(ctx.device, swapChain, &imageCount,
+  vkGetSwapchainImagesKHR(ctx.device, ctx.swapChain, &imageCount,
                           swapChainImages.data());
 
   swapChainImageFormat = surfaceFormat.format;
@@ -102,7 +102,7 @@ SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
   return actualExtent;
 }
 
-VkSwapchainKHR &SwapChain::getSwapChain() { return (swapChain); }
+VkSwapchainKHR &SwapChain::getSwapChain() { return (ctx.swapChain); }
 
 std::vector<VkImage> &SwapChain::getChainImage() { return (swapChainImages); }
 
@@ -111,5 +111,5 @@ VkFormat &SwapChain::getSwapChainImageFormat() {
 }
 
 SwapChain::~SwapChain() {
-  vkDestroySwapchainKHR(ctx.device, swapChain, nullptr);
+  vkDestroySwapchainKHR(ctx.device, ctx.swapChain, nullptr);
 }

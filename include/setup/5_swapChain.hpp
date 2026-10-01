@@ -22,7 +22,6 @@ private:
   chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &);
   VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &);
   VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &, GLFWwindow *);
-  VkSwapchainKHR swapChain;
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
