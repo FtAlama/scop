@@ -39,7 +39,7 @@ void TriangleApplication::mainLoop() {
     glfwPollEvents();
     drawFrame();
   }
-	vkDeviceWaitIdle(ctx.device);
+  vkDeviceWaitIdle(ctx.device);
 }
 
 void TriangleApplication::drawFrame() {
@@ -51,39 +51,40 @@ void TriangleApplication::drawFrame() {
                         ctx.imageAvailableSemaphore, VK_NULL_HANDLE,
                         &imageIndex);
 
-	vkResetCommandBuffer(ctx.commandBuffer, 0);
-	commandBuffer->recordCommandBuffer(imageIndex);
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  vkResetCommandBuffer(ctx.commandBuffer, 0);
+  commandBuffer->recordCommandBuffer(imageIndex);
 
-	VkSemaphore waitSemaphores[] = {ctx.imageAvailableSemaphore};
+  VkSubmitInfo submitInfo{};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  VkSemaphore waitSemaphores[] = {ctx.imageAvailableSemaphore};
+  VkPipelineStageFlags waitStages[] = {
+      VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
 
-	VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
-	submitInfo.pWaitDstStageMask = waitStages;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &ctx.commandBuffer;
 
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &ctx.commandBuffer;
+  VkSemaphore signalSemaphores[] = {ctx.renderFinishedSemaphore};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
 
-	VkSemaphore signalSemaphores[] = {ctx.renderFinishedSemaphore};
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
+  if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, ctx.inFlightFence) !=
+      VK_SUCCESS)
+    throw std::runtime_error("failed to submit draw command buffer!");
 
-	if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, ctx.inFlightFence) != VK_SUCCESS)
-		throw std::runtime_error("failed to submit draw command buffer!");
+  VkPresentInfoKHR presentInfo{};
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+  VkSwapchainKHR swapchains[] = {ctx.swapChain};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapchains;
+  presentInfo.pImageIndices = &imageIndex;
+  presentInfo.pResults = nullptr;
 
-	VkPresentInfoKHR presentInfo{};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-	VkSwapchainKHR swapchains[] = {ctx.swapChain};
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = swapchains;
-	presentInfo.pImageIndices = &imageIndex;
-	presentInfo.pResults = nullptr;
-
-	vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
+  vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
 }
 
 Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {

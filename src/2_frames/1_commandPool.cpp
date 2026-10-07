@@ -60,6 +60,21 @@ void CommandBuffer::recordCommandBuffer(uint32_t imageIndex) {
                        VK_SUBPASS_CONTENTS_INLINE);
   vkCmdBindPipeline(ctx.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                     ctx.graphicsPipeline);
+
+	VkViewport viewport{};
+  viewport.x = 0.0f;
+  viewport.y = 0.0f;
+  viewport.width = static_cast<float>(ctx.swapChainExtent.width);
+  viewport.height = static_cast<float>(ctx.swapChainExtent.height);
+  viewport.minDepth = 0.0f;
+  viewport.maxDepth = 1.0f;
+  vkCmdSetViewport(ctx.commandBuffer, 0, 1, &viewport);
+  
+	VkRect2D scissor{};
+	scissor.offset = {0, 0};
+  scissor.extent = ctx.swapChainExtent;
+  vkCmdSetScissor(ctx.commandBuffer, 0, 1, &scissor);
+
 	vkCmdDraw(ctx.commandBuffer, 3, 1, 0, 0);
 
 	vkCmdEndRenderPass(ctx.commandBuffer);

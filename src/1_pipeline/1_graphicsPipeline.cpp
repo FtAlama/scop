@@ -38,23 +38,11 @@ void GraphicsPipeline::inputAsm() {
 }
 
 void GraphicsPipeline::viewportState() {
-  viewport.x = 0.0f;
-  viewport.y = 0.0f;
-  viewport.width = static_cast<float>(ctx.swapChainExtent.width);
-  viewport.height = static_cast<float>(ctx.swapChainExtent.height);
-  viewport.minDepth = 0.0f;
-  viewport.maxDepth = 1.0f;
-//  vkCmdSetViewport(ctx.commandBuffer, 0, 1, &viewport);
-
-  scissor.offset = {0, 0};
-  scissor.extent = ctx.swapChainExtent;
-//  vkCmdSetScissor(ctx.commandBuffer, 0, 1, &scissor);
-
   vpState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   vpState.viewportCount = 1;
-  vpState.pViewports = &viewport;
+//  vpState.pViewports = &viewport;
   vpState.scissorCount = 1;
-  vpState.pScissors = &scissor;
+//  vpState.pScissors = &scissor;
 }
 
 void GraphicsPipeline::set_rasterization() {
