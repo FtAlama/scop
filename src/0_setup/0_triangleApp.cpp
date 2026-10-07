@@ -51,6 +51,9 @@ void TriangleApplication::drawFrame() {
                         ctx.imageAvailableSemaphore, VK_NULL_HANDLE,
                         &imageIndex);
 
+  VkSemaphore renderFinishedSemaphore =
+      ctx.renderFinishedSemaphores[imageIndex];
+
   vkResetCommandBuffer(ctx.commandBuffer, 0);
   commandBuffer->recordCommandBuffer(imageIndex);
 
@@ -66,7 +69,7 @@ void TriangleApplication::drawFrame() {
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &ctx.commandBuffer;
 
-  VkSemaphore signalSemaphores[] = {ctx.renderFinishedSemaphore};
+  VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 

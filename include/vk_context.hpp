@@ -23,7 +23,7 @@ struct vk_context {
   VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
   VkSwapchainKHR swapChain;
 	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
 	VkFence inFlightFence;
 };
 
