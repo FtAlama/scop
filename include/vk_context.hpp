@@ -3,7 +3,8 @@
 #define VK_CONTEXT_HPP
 
 #include <vulkan/vulkan.h>
-#include <vector>
+
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 struct vk_context {
   VkInstance instance = VK_NULL_HANDLE;
@@ -12,19 +13,9 @@ struct vk_context {
   VkSurfaceKHR surface = VK_NULL_HANDLE;
   VkQueue graphicsQueue = VK_NULL_HANDLE;
   VkQueue presentQueue = VK_NULL_HANDLE;
-  VkRenderPass renderPass = VK_NULL_HANDLE;
-  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-  VkExtent2D swapChainExtent;
-  VkFormat swapChainImageFormat;
-	std::vector<VkImageView> swapChainImageViews;
-	VkCommandPool commandPool = VK_NULL_HANDLE;
-	std::vector<VkFramebuffer> swapchainFramebuffers;
-  VkPipeline graphicsPipeline = VK_NULL_HANDLE;
-  VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-  VkSwapchainKHR swapChain;
-	VkSemaphore imageAvailableSemaphore;
-	std::vector<VkSemaphore> renderFinishedSemaphores;
-	VkFence inFlightFence;
 };
+
+// struct vk_context {
+// };
 
 #endif

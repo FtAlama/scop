@@ -3,9 +3,10 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-RenderPass::RenderPass(vk_context &ctx) : ctx(ctx) {
+RenderPass::RenderPass(vk_context &ctx, VkFormat const swapChainImageFormat)
+    : ctx(ctx) {
   VkAttachmentDescription colorAttachment{};
-  colorAttachment.format = ctx.swapChainImageFormat;
+  colorAttachment.format = swapChainImageFormat;
   colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
   colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
   colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -23,13 +24,13 @@ RenderPass::RenderPass(vk_context &ctx) : ctx(ctx) {
   subpass.colorAttachmentCount = 1;
   subpass.pColorAttachments = &colorAttachmentRef;
 
-	VkSubpassDependency dependency{};
-	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	dependency.dstSubpass = 0;
-	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.srcAccessMask = 0;
-	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	dependency.dstAccessMask = 0;
+  VkSubpassDependency dependency{};
+  dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+  dependency.dstSubpass = 0;
+  dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.srcAccessMask = 0;
+  dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+  dependency.dstAccessMask = 0;
 
   VkRenderPassCreateInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -37,15 +38,14 @@ RenderPass::RenderPass(vk_context &ctx) : ctx(ctx) {
   renderPassInfo.pAttachments = &colorAttachment;
   renderPassInfo.subpassCount = 1;
   renderPassInfo.pSubpasses = &subpass;
-	renderPassInfo.dependencyCount = 1;
-	renderPassInfo.pDependencies = &dependency;
+  renderPassInfo.dependencyCount = 1;
+  renderPassInfo.pDependencies = &dependency;
 
-  if (vkCreateRenderPass(ctx.device, &renderPassInfo, nullptr,
-                         &ctx.renderPass) != VK_SUCCESS)
+  if (vkCreateRenderPass(ctx.device, &renderPassInfo, nullptr, &renderPass) !=
+      VK_SUCCESS)
     throw std::runtime_error("failed to create render passs!");
-
 }
 
 RenderPass::~RenderPass() {
-  vkDestroyRenderPass(ctx.device, ctx.renderPass, nullptr);
+  vkDestroyRenderPass(ctx.device, renderPass, nullptr);
 }

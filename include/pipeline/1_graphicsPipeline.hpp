@@ -9,7 +9,9 @@
 
 class GraphicsPipeline {
 public:
-  GraphicsPipeline(vk_context &);
+  GraphicsPipeline(vk_context &, VkRenderPass const);
+  VkPipeline get() const { return graphicsPipeline; }
+	VkPipelineLayout pipelineLay() const { return pipelineLayout; }
   ~GraphicsPipeline();
 
 private:
@@ -29,6 +31,8 @@ private:
   std::vector<VkDynamicState> dynamicStates;
   VkPipelineDynamicStateCreateInfo dynamicState{};
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+  VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+  VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
   void vertexInput();
   void inputAsm();
   void viewportState();
@@ -36,7 +40,7 @@ private:
   void multisample();
   void colorBlend();
   void dynamicSte();
-  void createGraphicsPipeline();
+  void createGraphicsPipeline(VkRenderPass const);
 };
 
 #endif

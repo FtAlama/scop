@@ -40,9 +40,7 @@ void GraphicsPipeline::inputAsm() {
 void GraphicsPipeline::viewportState() {
   vpState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   vpState.viewportCount = 1;
-//  vpState.pViewports = &viewport;
   vpState.scissorCount = 1;
-//  vpState.pScissors = &scissor;
 }
 
 void GraphicsPipeline::set_rasterization() {
@@ -102,7 +100,7 @@ void GraphicsPipeline::dynamicSte() {
   dynamicState.pDynamicStates = dynamicStates.data();
 }
 
-void GraphicsPipeline::createGraphicsPipeline() {
+void GraphicsPipeline::createGraphicsPipeline(VkRenderPass const renderPass) {
   VkGraphicsPipelineCreateInfo pipelineInfo{};
   pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
   pipelineInfo.stageCount = 2;
@@ -117,19 +115,34 @@ void GraphicsPipeline::createGraphicsPipeline() {
   pipelineInfo.pColorBlendState = &colorBlending;
   pipelineInfo.pDynamicState = &dynamicState;
 
-  pipelineInfo.layout = ctx.pipelineLayout;
-  pipelineInfo.renderPass = ctx.renderPass;
+  pipelineInfo.layout = pipelineLayout;
+  pipelineInfo.renderPass = renderPass;
   pipelineInfo.subpass = 0;
 
   pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
   pipelineInfo.basePipelineIndex = -1;
 
   if (vkCreateGraphicsPipelines(ctx.device, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                nullptr, &ctx.graphicsPipeline) != VK_SUCCESS)
+                                nullptr, &graphicsPipeline) != VK_SUCCESS)
     throw std::runtime_error("failed to create graphics pipeline!");
 }
 
-GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
+VkShaderModule
+GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
+  VkShaderModuleCreateInfo createInfo{};
+  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+  createInfo.codeSize = code.size();
+  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+  VkShaderModule shaderModule;
+  if (vkCreateShaderModule(ctx.device, &createInfo, nullptr, &shaderModule) !=
+      VK_SUCCESS)
+    throw std::runtime_error("failed to create shader module!");
+  return (shaderModule);
+}
+
+GraphicsPipeline::GraphicsPipeline(vk_context &ctx,
+                                   VkRenderPass const renderPass)
+    : ctx(ctx) {
   auto vertShaderCode = readFile("vert.spv");
   auto fragShaderCode = readFile("frag.spv");
 
@@ -169,27 +182,14 @@ GraphicsPipeline::GraphicsPipeline(vk_context &ctx) : ctx(ctx) {
   pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
   if (vkCreatePipelineLayout(ctx.device, &pipelineLayoutCreateInfo, nullptr,
-                             &ctx.pipelineLayout) != VK_SUCCESS)
+                             &pipelineLayout) != VK_SUCCESS)
     throw std::runtime_error("failed to create pipeline layout!");
-  createGraphicsPipeline();
+  createGraphicsPipeline(renderPass);
   vkDestroyShaderModule(ctx.device, fragShaderModule, nullptr);
   vkDestroyShaderModule(ctx.device, vertShaderModule, nullptr);
 }
 
-VkShaderModule
-GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-  VkShaderModule shaderModule;
-  if (vkCreateShaderModule(ctx.device, &createInfo, nullptr, &shaderModule) !=
-      VK_SUCCESS)
-    throw std::runtime_error("failed to create shader module!");
-  return (shaderModule);
-}
-
 GraphicsPipeline::~GraphicsPipeline() {
-  vkDestroyPipeline(ctx.device, ctx.graphicsPipeline, nullptr);
-  vkDestroyPipelineLayout(ctx.device, ctx.pipelineLayout, nullptr);
+  vkDestroyPipeline(ctx.device, graphicsPipeline, nullptr);
+  vkDestroyPipelineLayout(ctx.device, pipelineLayout, nullptr);
 }

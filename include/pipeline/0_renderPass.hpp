@@ -6,11 +6,13 @@
 
 class RenderPass {
 public:
-	RenderPass(vk_context &);
-	~RenderPass();
-private:
-	vk_context &ctx;
+  RenderPass(vk_context &, VkFormat const);
+  VkRenderPass get() const { return renderPass; }
+  ~RenderPass();
 
+private:
+  VkRenderPass renderPass = VK_NULL_HANDLE;
+  vk_context &ctx;
 };
 
 #endif

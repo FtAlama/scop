@@ -4,16 +4,17 @@
 
 #define GLFW_INCLUDE_VULKAN
 
+#include "vk_context.hpp"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
-#include "vk_context.hpp"
 
 class WindowSurface {
 public:
-	WindowSurface(vk_context &, GLFWwindow *);
-	~WindowSurface();
+  WindowSurface(vk_context &, GLFWwindow *);
+  ~WindowSurface();
+
 private:
-	vk_context &surface_ctx;
+  vk_context &ctx;
 };
 
 #endif

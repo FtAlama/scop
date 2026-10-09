@@ -11,7 +11,6 @@ void TriangleApplication::initVulkan() {
   });
   if (!glfwInit())
     throw std::runtime_error("failed to init GLFW");
-  glfwInit();
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   window.emplace(WIDTH, HEIGHT, "Scop");
@@ -24,14 +23,14 @@ void TriangleApplication::initVulkan() {
   vk_Pdevice.emplace(ctx);
   vk_Ldevice.emplace(ctx);
   swapchain.emplace(ctx, window->get());
-  imageView.emplace(ctx, swapchain->getChainImage(),
-                    swapchain->getSwapChainImageFormat());
-  renderPass.emplace(ctx);
-  graphicsPipeline.emplace(ctx);
-  framebuffers.emplace(ctx);
+  imageView.emplace(ctx, swapchain->images(), swapchain->imageFormat());
+  renderPass.emplace(ctx, swapchain->imageFormat());
+  graphicsPipeline.emplace(ctx, renderPass->get());
+  framebuffers.emplace(ctx, imageView->get(), renderPass->get(),
+                       swapchain->extent());
   commandPool.emplace(ctx);
-  commandBuffer.emplace(ctx);
-  syncObjects.emplace(ctx);
+  commandBuffer.emplace(ctx, commandPool->get());
+  syncObjects.emplace(ctx, imageView->get());
 }
 
 void TriangleApplication::mainLoop() {
@@ -43,23 +42,28 @@ void TriangleApplication::mainLoop() {
 }
 
 void TriangleApplication::drawFrame() {
-  vkWaitForFences(ctx.device, 1, &ctx.inFlightFence, VK_TRUE, UINT64_MAX);
-  vkResetFences(ctx.device, 1, &ctx.inFlightFence);
+  VkFence inFlightFence = syncObjects->FlightFence();
+  std::vector<VkSemaphore> renderFinishedSemaphores =
+      syncObjects->renderFinishedSema();
+  VkSemaphore imageAvailableSemaphore = syncObjects->availableSema();
+
+  vkWaitForFences(ctx.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+  vkResetFences(ctx.device, 1, &inFlightFence);
 
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(ctx.device, ctx.swapChain, UINT64_MAX,
-                        ctx.imageAvailableSemaphore, VK_NULL_HANDLE,
-                        &imageIndex);
+  vkAcquireNextImageKHR(ctx.device, swapchain->get(), UINT64_MAX,
+                        imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-  VkSemaphore renderFinishedSemaphore =
-      ctx.renderFinishedSemaphores[imageIndex];
+  VkSemaphore renderFinishedSemaphore = renderFinishedSemaphores[imageIndex];
 
-  vkResetCommandBuffer(ctx.commandBuffer, 0);
-  commandBuffer->recordCommandBuffer(imageIndex);
+  vkResetCommandBuffer(commandBuffer->get(), 0);
+  commandBuffer->recordCommandBuffer(imageIndex, renderPass->get(),
+                                     framebuffers->get(), swapchain->extent(),
+                                     graphicsPipeline->get());
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  VkSemaphore waitSemaphores[] = {ctx.imageAvailableSemaphore};
+  VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
   VkPipelineStageFlags waitStages[] = {
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   submitInfo.waitSemaphoreCount = 1;
@@ -67,13 +71,14 @@ void TriangleApplication::drawFrame() {
   submitInfo.pWaitDstStageMask = waitStages;
 
   submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &ctx.commandBuffer;
+  VkCommandBuffer commandBuf = commandBuffer->get();
+  submitInfo.pCommandBuffers = &commandBuf;
 
   VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
-  if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, ctx.inFlightFence) !=
+  if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, inFlightFence) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to submit draw command buffer!");
 
@@ -81,7 +86,7 @@ void TriangleApplication::drawFrame() {
   presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
   presentInfo.waitSemaphoreCount = 1;
   presentInfo.pWaitSemaphores = signalSemaphores;
-  VkSwapchainKHR swapchains[] = {ctx.swapChain};
+  VkSwapchainKHR swapchains[] = {swapchain->get()};
   presentInfo.swapchainCount = 1;
   presentInfo.pSwapchains = swapchains;
   presentInfo.pImageIndices = &imageIndex;

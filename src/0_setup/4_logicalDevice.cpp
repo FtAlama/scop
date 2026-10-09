@@ -1,7 +1,7 @@
-#include "setup/1_validationLayers.hpp"
-#include "setup/3_physicalDevice.hpp"
 #include "setup/4_logicalDevice.hpp"
 #include "queueFamilies.hpp"
+#include "setup/1_validationLayers.hpp"
+#include "setup/3_physicalDevice.hpp"
 #include <cstdint>
 #include <set>
 #include <stdexcept>
@@ -9,6 +9,7 @@
 
 LogicalDevice::LogicalDevice(vk_context &ctx) : ctx(ctx) {
   QueueFamilyIndices indices =
+
       findQueueFamilies(ctx.physicalDevice, ctx.surface);
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),

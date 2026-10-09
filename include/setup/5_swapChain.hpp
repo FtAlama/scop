@@ -11,10 +11,10 @@
 class SwapChain {
 public:
   SwapChain(vk_context &, GLFWwindow *);
-  VkSwapchainKHR &getSwapChain();
-  std::vector<VkImage> &getChainImage();
-  VkFormat &getSwapChainImageFormat();
-  VkExtent2D &getExtent();
+  VkSwapchainKHR get() const { return swapChain; }
+  VkFormat imageFormat() const { return swapChainImageFormat; }
+  VkExtent2D extent() const { return swapChainExtent; }
+  const std::vector<VkImage>& images() const { return swapChainImages; }
   ~SwapChain();
 
 private:
@@ -25,6 +25,7 @@ private:
   std::vector<VkImage> swapChainImages;
   VkFormat swapChainImageFormat;
   VkExtent2D swapChainExtent;
+  VkSwapchainKHR swapChain;
   vk_context &ctx;
 };
 
