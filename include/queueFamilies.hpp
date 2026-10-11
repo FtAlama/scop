@@ -26,5 +26,4 @@ QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice &, VkSurfaceKHR &);
 
 SwapChainSupportDetails querySwapChainSupport(const VkPhysicalDevice &,
                                               VkSurfaceKHR &);
-
 #endif

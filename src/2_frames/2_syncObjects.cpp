@@ -3,9 +3,9 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-SyncObjects::SyncObjects(vk_context &ctx,
-                         const std::vector<VkImageView> &swapChainImageViews)
-    : ctx(ctx) {
+SyncObjects::SyncObjects(vk_context &ctx, const uint32_t image_nb) : ctx(ctx) {
+  frames.resize(MAX_FRAMES_IN_FLIGHT);
+  renderFinishedSemaphores.resize(image_nb);
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -13,21 +13,25 @@ SyncObjects::SyncObjects(vk_context &ctx,
   fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-  renderFinishedSemaphores.resize(swapChainImageViews.size());
-  for (uint32_t i = 0; i < swapChainImageViews.size(); ++i)
+  for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+    if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
+                          &frames[i].imageAvailableSemaphore) != VK_SUCCESS ||
+        vkCreateFence(ctx.device, &fenceInfo, nullptr,
+                      &frames[i].inFlightFence) != VK_SUCCESS)
+      throw std::runtime_error("failed to create semaphores!");
+  }
+  for (uint32_t i = 0; i < image_nb; ++i)
     if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
                           &renderFinishedSemaphores[i]) != VK_SUCCESS)
       throw std::runtime_error("failed to create semaphores!");
-  if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
-                        &imageAvailableSemaphore) != VK_SUCCESS ||
-      vkCreateFence(ctx.device, &fenceInfo, nullptr, &inFlightFence) !=
-          VK_SUCCESS)
-    throw std::runtime_error("failed to create semaphores!");
 }
 
 SyncObjects::~SyncObjects() {
-  for (uint32_t i = 0; i < renderFinishedSemaphores.size(); ++i)
+  for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+    vkDestroySemaphore(ctx.device, frames[i].imageAvailableSemaphore, nullptr);
+    vkDestroyFence(ctx.device, frames[i].inFlightFence, nullptr);
+  }
+  for (uint32_t i = 0; i < renderFinishedSemaphores.size(); ++i) {
     vkDestroySemaphore(ctx.device, renderFinishedSemaphores[i], nullptr);
-  vkDestroySemaphore(ctx.device, imageAvailableSemaphore, nullptr);
-  vkDestroyFence(ctx.device, inFlightFence, nullptr);
+  }
 }

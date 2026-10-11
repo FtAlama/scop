@@ -30,7 +30,7 @@ void TriangleApplication::initVulkan() {
                        swapchain->extent());
   commandPool.emplace(ctx);
   commandBuffer.emplace(ctx, commandPool->get());
-  syncObjects.emplace(ctx, imageView->get());
+  syncObjects.emplace(ctx, swapchain->images().size());
 }
 
 void TriangleApplication::mainLoop() {
@@ -42,28 +42,24 @@ void TriangleApplication::mainLoop() {
 }
 
 void TriangleApplication::drawFrame() {
-  VkFence inFlightFence = syncObjects->FlightFence();
-  std::vector<VkSemaphore> renderFinishedSemaphores =
-      syncObjects->renderFinishedSema();
-  VkSemaphore imageAvailableSemaphore = syncObjects->availableSema();
-
-  vkWaitForFences(ctx.device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
-  vkResetFences(ctx.device, 1, &inFlightFence);
+  const frame_flight &frames = syncObjects->framesFlight()[current_frame];
+  vkWaitForFences(ctx.device, 1, &frames.inFlightFence, VK_TRUE, UINT64_MAX);
+  vkResetFences(ctx.device, 1, &frames.inFlightFence);
 
   uint32_t imageIndex;
   vkAcquireNextImageKHR(ctx.device, swapchain->get(), UINT64_MAX,
-                        imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+                        frames.imageAvailableSemaphore, VK_NULL_HANDLE,
+                        &imageIndex);
 
-  VkSemaphore renderFinishedSemaphore = renderFinishedSemaphores[imageIndex];
-
-  vkResetCommandBuffer(commandBuffer->get(), 0);
-  commandBuffer->recordCommandBuffer(imageIndex, renderPass->get(),
-                                     framebuffers->get(), swapchain->extent(),
-                                     graphicsPipeline->get());
+  VkCommandBuffer commandBuf = commandBuffer->get()[current_frame];
+  vkResetCommandBuffer(commandBuf, 0);
+  commandBuffer->recordCommandBuffer(
+      commandBuf, framebuffers->get()[imageIndex], renderPass->get(),
+      swapchain->extent(), graphicsPipeline->get());
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+  VkSemaphore waitSemaphores[] = {frames.imageAvailableSemaphore};
   VkPipelineStageFlags waitStages[] = {
       VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   submitInfo.waitSemaphoreCount = 1;
@@ -71,14 +67,13 @@ void TriangleApplication::drawFrame() {
   submitInfo.pWaitDstStageMask = waitStages;
 
   submitInfo.commandBufferCount = 1;
-  VkCommandBuffer commandBuf = commandBuffer->get();
   submitInfo.pCommandBuffers = &commandBuf;
 
-  VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+  VkSemaphore signalSemaphores[] = {syncObjects->renderFinised()[imageIndex]};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
-  if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, inFlightFence) !=
+  if (vkQueueSubmit(ctx.graphicsQueue, 1, &submitInfo, frames.inFlightFence) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to submit draw command buffer!");
 
@@ -93,6 +88,7 @@ void TriangleApplication::drawFrame() {
   presentInfo.pResults = nullptr;
 
   vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
+  current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {

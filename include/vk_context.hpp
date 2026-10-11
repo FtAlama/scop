@@ -15,7 +15,9 @@ struct vk_context {
   VkQueue presentQueue = VK_NULL_HANDLE;
 };
 
-// struct vk_context {
-// };
+struct frame_flight {
+  VkSemaphore imageAvailableSemaphore;
+  VkFence inFlightFence;
+};
 
 #endif

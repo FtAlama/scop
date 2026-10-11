@@ -25,21 +25,22 @@ CommandPool::~CommandPool() {
 
 CommandBuffer::CommandBuffer(vk_context &ctx, const VkCommandPool commandPool)
     : ctx(ctx) {
+  commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
   VkCommandBufferAllocateInfo allocInfo{};
 
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.commandPool = commandPool;
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandBufferCount = 1;
+  allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-  if (vkAllocateCommandBuffers(ctx.device, &allocInfo, &commandBuffer) !=
+  if (vkAllocateCommandBuffers(ctx.device, &allocInfo, commandBuffers.data()) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to allocate command buffer!");
 }
 
 void CommandBuffer::recordCommandBuffer(
-    const uint32_t imageIndex, const VkRenderPass renderPass,
-    const std::vector<VkFramebuffer> &swapchainFramebuffers,
+    const VkCommandBuffer commandBuffer,
+    const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
     const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline) {
   VkCommandBufferBeginInfo beginInfo{};
 
@@ -53,7 +54,7 @@ void CommandBuffer::recordCommandBuffer(
   VkRenderPassBeginInfo renderPassInfo{};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
   renderPassInfo.renderPass = renderPass;
-  renderPassInfo.framebuffer = swapchainFramebuffers[imageIndex];
+  renderPassInfo.framebuffer = swapchainFramebuffer;
   renderPassInfo.renderArea.offset = {0, 0};
   renderPassInfo.renderArea.extent = swapChainExtent;
 

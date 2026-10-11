@@ -86,6 +86,7 @@ private:
   void createInstance();
   void createLogicalDevice();
   void drawFrame();
+  uint32_t current_frame = 0;
 };
 
 #endif

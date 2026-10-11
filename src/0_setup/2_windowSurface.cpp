@@ -6,10 +6,9 @@
 #include <sys/types.h>
 #include <vulkan/vulkan_core.h>
 
-WindowSurface::WindowSurface(vk_context &ctx, GLFWwindow *window)
-    : ctx(ctx) {
-  if (glfwCreateWindowSurface(ctx.instance, window, nullptr,
-                              &ctx.surface) != VK_SUCCESS)
+WindowSurface::WindowSurface(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
+  if (glfwCreateWindowSurface(ctx.instance, window, nullptr, &ctx.surface) !=
+      VK_SUCCESS)
     throw std::runtime_error("failed to create window surface");
   std::cout << "Window surface create\n";
 }

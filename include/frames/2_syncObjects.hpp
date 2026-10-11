@@ -3,22 +3,22 @@
 #define SEMAPHORES_HPP
 
 #include "vk_context.hpp"
-#include <vulkan/vulkan_core.h>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 
 class SyncObjects {
 public:
-  SyncObjects(vk_context &, const std::vector<VkImageView> &);
-	VkSemaphore availableSema() const { return imageAvailableSemaphore; }
-	const std::vector<VkSemaphore> &renderFinishedSema() const { return renderFinishedSemaphores; }
-	VkFence FlightFence() const { return inFlightFence; }
+  SyncObjects(vk_context &, const uint32_t);
+  const std::vector<frame_flight> &framesFlight() const { return frames; }
+  const std::vector<VkSemaphore> renderFinised() const {
+    return renderFinishedSemaphores;
+  }
   ~SyncObjects();
 
 private:
   vk_context &ctx;
- 	VkSemaphore imageAvailableSemaphore;
- 	std::vector<VkSemaphore> renderFinishedSemaphores;
- 	VkFence inFlightFence;
+  std::vector<frame_flight> frames;
+  std::vector<VkSemaphore> renderFinishedSemaphores;
 };
 
 #endif
