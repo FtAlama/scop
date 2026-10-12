@@ -31,7 +31,6 @@ SyncObjects::~SyncObjects() {
     vkDestroySemaphore(ctx.device, frames[i].imageAvailableSemaphore, nullptr);
     vkDestroyFence(ctx.device, frames[i].inFlightFence, nullptr);
   }
-  for (uint32_t i = 0; i < renderFinishedSemaphores.size(); ++i) {
-    vkDestroySemaphore(ctx.device, renderFinishedSemaphores[i], nullptr);
-  }
+  for (auto renderFinished : renderFinishedSemaphores)
+    vkDestroySemaphore(ctx.device, renderFinished, nullptr);
 }

@@ -8,10 +8,11 @@
 
 class ImageViews {
 public:
-  ImageViews(vk_context &, std::vector<VkImage> const &, VkFormat const);
-  void createImageViews(std::vector<VkImage> &, VkFormat &, VkDevice &);
+  ImageViews(vk_context &, const std::vector<VkImage> &, const VkFormat);
+  void createImageViews(const std::vector<VkImage> &, const VkFormat);
   void destroyImageViews(VkDevice &);
   std::vector<VkImageView> get() const { return swapChainImageViews; }
+  void cleanup();
   ~ImageViews();
 
 private:

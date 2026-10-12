@@ -8,10 +8,14 @@
 
 class Framebuffers {
 public:
-  Framebuffers(vk_context &, const std::vector<VkImageView> &, const VkRenderPass, const VkExtent2D);
+  Framebuffers(vk_context &, const std::vector<VkImageView> &,
+               const VkRenderPass, const VkExtent2D);
+  void createFramebuffers(const std::vector<VkImageView> &, const VkRenderPass,
+                          const VkExtent2D);
   const std::vector<VkFramebuffer> &get() const {
     return swapchainFramebuffers;
   }
+  void cleanup();
   ~Framebuffers();
 
 private:

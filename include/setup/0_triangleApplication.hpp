@@ -31,6 +31,8 @@ public:
 private:
   vk_context &ctx;
 };
+static void framebufferResizedCallback(GLFWwindow *window, int width,
+                                       int height);
 
 class GlfwWindow {
 public:
@@ -41,10 +43,11 @@ public:
     if (!glfwInit())
       throw std::runtime_error("failed to init GLFW");
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     handle = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!handle)
       throw std::runtime_error("failed to create GLFW window");
+    glfwSetWindowUserPointer(handle, this);
+    glfwSetFramebufferSizeCallback(handle, framebufferResizedCallback);
   }
   ~GlfwWindow() {
     glfwDestroyWindow(handle);
@@ -63,6 +66,7 @@ public:
     initVulkan();
     mainLoop();
   }
+  bool framebufferResized = false;
 
 private:
   std::optional<GlfwWindow> window;
@@ -72,21 +76,31 @@ private:
   std::optional<WindowSurface> win_surface;
   std::optional<PhysicalDevice> vk_Pdevice;
   std::optional<LogicalDevice> vk_Ldevice;
-  std::optional<SwapChain> swapchain;
-  std::optional<ImageViews> imageView;
+  std::optional<CommandBuffer> commandBuffer;
+  std::optional<CommandPool> commandPool;
+  std::optional<SyncObjects> syncObjects;
   std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
+  std::optional<SwapChain> swapchain;
+  std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;
-  std::optional<CommandPool> commandPool;
-  std::optional<CommandBuffer> commandBuffer;
-  std::optional<SyncObjects> syncObjects;
 
   void initVulkan();
   void mainLoop();
   void createInstance();
   void createLogicalDevice();
   void drawFrame();
+  void recreateSwapChain();
+  void cleanupSwapChain();
   uint32_t current_frame = 0;
 };
+
+static void framebufferResizedCallback(GLFWwindow *window, int width,
+                                       int height) {
+  auto app =
+      reinterpret_cast<TriangleApplication *>(glfwGetWindowUserPointer(window));
+  app->framebufferResized = true;
+  (void)width, (void)height;
+}
 
 #endif

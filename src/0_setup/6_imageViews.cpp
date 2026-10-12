@@ -3,10 +3,8 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-ImageViews::ImageViews(vk_context &ctx,
-                       std::vector<VkImage> const &swapChainImages,
-                       VkFormat const swapChainImageFormat)
-    : ctx(ctx) {
+void ImageViews::createImageViews(const std::vector<VkImage> &swapChainImages,
+                                  const VkFormat swapChainImageFormat) {
   swapChainImageViews.resize(swapChainImages.size());
 
   for (uint32_t i = 0; i < swapChainImages.size(); i++) {
@@ -30,8 +28,19 @@ ImageViews::ImageViews(vk_context &ctx,
   }
 }
 
-ImageViews::~ImageViews() {
+ImageViews::ImageViews(vk_context &ctx,
+                       const std::vector<VkImage> &swapChainImages,
+                       const VkFormat swapChainImageFormat)
+    : ctx(ctx) {
+  createImageViews(swapChainImages, swapChainImageFormat);
+}
+
+void ImageViews::cleanup() {
   for (auto imageView : swapChainImageViews) {
     vkDestroyImageView(ctx.device, imageView, nullptr);
   }
+}
+
+ImageViews::~ImageViews() {
+	cleanup();
 }

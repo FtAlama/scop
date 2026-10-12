@@ -11,10 +11,12 @@
 class SwapChain {
 public:
   SwapChain(vk_context &, GLFWwindow *);
+  void createSwapChain(GLFWwindow *);
   VkSwapchainKHR get() const { return swapChain; }
   VkFormat imageFormat() const { return swapChainImageFormat; }
   VkExtent2D extent() const { return swapChainExtent; }
-  const std::vector<VkImage>& images() const { return swapChainImages; }
+  const std::vector<VkImage> &images() const { return swapChainImages; }
+  void cleanup();
   ~SwapChain();
 
 private:

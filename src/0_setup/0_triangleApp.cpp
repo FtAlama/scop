@@ -6,13 +6,6 @@
 #include <vulkan/vulkan_core.h>
 
 void TriangleApplication::initVulkan() {
-  glfwSetErrorCallback([](int code, const char *desc) {
-    std::cerr << "GLFW error " << code << ": " << desc << std::endl;
-  });
-  if (!glfwInit())
-    throw std::runtime_error("failed to init GLFW");
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
   window.emplace(WIDTH, HEIGHT, "Scop");
   if (!window)
     throw std::runtime_error("failed to create GLFW window");
@@ -44,12 +37,20 @@ void TriangleApplication::mainLoop() {
 void TriangleApplication::drawFrame() {
   const frame_flight &frames = syncObjects->framesFlight()[current_frame];
   vkWaitForFences(ctx.device, 1, &frames.inFlightFence, VK_TRUE, UINT64_MAX);
-  vkResetFences(ctx.device, 1, &frames.inFlightFence);
 
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(ctx.device, swapchain->get(), UINT64_MAX,
-                        frames.imageAvailableSemaphore, VK_NULL_HANDLE,
-                        &imageIndex);
+  VkResult result = vkAcquireNextImageKHR(
+      ctx.device, swapchain->get(), UINT64_MAX, frames.imageAvailableSemaphore,
+      VK_NULL_HANDLE, &imageIndex);
+
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || framebufferResized ||
+      result == VK_SUBOPTIMAL_KHR) {
+    recreateSwapChain();
+    return;
+  } else if (result != VK_SUCCESS && result)
+    throw std::runtime_error("failed to acquire swap chain image!");
+
+  vkResetFences(ctx.device, 1, &frames.inFlightFence);
 
   VkCommandBuffer commandBuf = commandBuffer->get()[current_frame];
   vkResetCommandBuffer(commandBuf, 0);
@@ -89,6 +90,29 @@ void TriangleApplication::drawFrame() {
 
   vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
   current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void TriangleApplication::cleanupSwapChain() {
+  swapchain->cleanup();
+  imageView->cleanup();
+  framebuffers->cleanup();
+}
+
+void TriangleApplication::recreateSwapChain() {
+  int width = 0, height = 0;
+  glfwGetFramebufferSize(window->get(), &width, &height);
+  while (width == 0 || height == 0) {
+    glfwGetFramebufferSize(window->get(), &width, &height);
+    glfwWaitEvents();
+  }
+
+  vkDeviceWaitIdle(ctx.device);
+
+  cleanupSwapChain();
+  swapchain->createSwapChain(window->get());
+  imageView->createImageViews(swapchain->images(), swapchain->imageFormat());
+  framebuffers->createFramebuffers(imageView->get(), renderPass->get(),
+                                   swapchain->extent());
 }
 
 Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {

@@ -3,11 +3,9 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-Framebuffers::Framebuffers(vk_context &ctx,
-                           const std::vector<VkImageView> &swapChainImageViews,
-                           const VkRenderPass renderPass,
-                           const VkExtent2D swapChainExtent)
-    : ctx(ctx) {
+void Framebuffers::createFramebuffers(
+    const std::vector<VkImageView> &swapChainImageViews,
+    const VkRenderPass renderPass, const VkExtent2D swapChainExtent) {
   swapchainFramebuffers.resize(swapChainImageViews.size());
   for (size_t i = 0; i < swapChainImageViews.size(); i++) {
     VkImageView attachments[] = {swapChainImageViews[i]};
@@ -26,7 +24,17 @@ Framebuffers::Framebuffers(vk_context &ctx,
   }
 }
 
-Framebuffers::~Framebuffers() {
+Framebuffers::Framebuffers(vk_context &ctx,
+                           const std::vector<VkImageView> &swapChainImageViews,
+                           const VkRenderPass renderPass,
+                           const VkExtent2D swapChainExtent)
+    : ctx(ctx) {
+  createFramebuffers(swapChainImageViews, renderPass, swapChainExtent);
+}
+
+void Framebuffers::cleanup() {
   for (auto framebuffer : swapchainFramebuffers)
     vkDestroyFramebuffer(ctx.device, framebuffer, nullptr);
 }
+
+Framebuffers::~Framebuffers() { cleanup(); }

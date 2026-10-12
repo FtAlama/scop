@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <vulkan/vulkan_core.h>
 
-SwapChain::SwapChain(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
+void SwapChain::createSwapChain(GLFWwindow *window) {
   SwapChainSupportDetails swapChainSupport =
       querySwapChainSupport(ctx.physicalDevice, ctx.surface);
   VkSurfaceFormatKHR surfaceFormat =
@@ -59,6 +59,10 @@ SwapChain::SwapChain(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
   swapChainExtent = extent;
 }
 
+SwapChain::SwapChain(vk_context &ctx, GLFWwindow *window) : ctx(ctx) {
+  createSwapChain(window);
+}
+
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(
     const std::vector<VkSurfaceFormatKHR> &availableFormats) {
   for (const auto &availableFormat : availableFormats) {
@@ -100,6 +104,8 @@ SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities,
   return actualExtent;
 }
 
-SwapChain::~SwapChain() {
+void SwapChain::cleanup() {
   vkDestroySwapchainKHR(ctx.device, swapChain, nullptr);
 }
+
+SwapChain::~SwapChain() { cleanup(); }
