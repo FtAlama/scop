@@ -10,9 +10,10 @@ class SyncObjects {
 public:
   SyncObjects(vk_context &, const uint32_t);
   const std::vector<frame_flight> &framesFlight() const { return frames; }
-  const std::vector<VkSemaphore> renderFinised() const {
+  const std::vector<VkSemaphore> renderFinished() const {
     return renderFinishedSemaphores;
   }
+  void recreateRenderFinished(const uint32_t);
   ~SyncObjects();
 
 private:

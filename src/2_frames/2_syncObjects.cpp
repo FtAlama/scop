@@ -26,6 +26,20 @@ SyncObjects::SyncObjects(vk_context &ctx, const uint32_t image_nb) : ctx(ctx) {
       throw std::runtime_error("failed to create semaphores!");
 }
 
+void SyncObjects::recreateRenderFinished(const uint32_t image_nb) {
+  for (auto renderFinished : renderFinishedSemaphores)
+    vkDestroySemaphore(ctx.device, renderFinished, nullptr);
+
+  renderFinishedSemaphores.resize(image_nb);
+  VkSemaphoreCreateInfo semaphoreInfo{};
+  semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  for (uint32_t i = 0; i < image_nb; ++i)
+    if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
+                          &renderFinishedSemaphores[i]) != VK_SUCCESS)
+      throw std::runtime_error("failed to create semaphores!");
+}
+
 SyncObjects::~SyncObjects() {
   for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
     vkDestroySemaphore(ctx.device, frames[i].imageAvailableSemaphore, nullptr);

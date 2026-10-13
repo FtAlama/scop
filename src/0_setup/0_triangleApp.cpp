@@ -9,6 +9,7 @@ void TriangleApplication::initVulkan() {
   window.emplace(WIDTH, HEIGHT, "Scop");
   if (!window)
     throw std::runtime_error("failed to create GLFW window");
+  glfwSetWindowUserPointer(window->get(), this);
 
   instance.emplace(ctx, layers);
   layers.setupDebugMessenger(ctx.instance);
@@ -43,11 +44,11 @@ void TriangleApplication::drawFrame() {
       ctx.device, swapchain->get(), UINT64_MAX, frames.imageAvailableSemaphore,
       VK_NULL_HANDLE, &imageIndex);
 
-  if (result == VK_ERROR_OUT_OF_DATE_KHR || framebufferResized ||
-      result == VK_SUBOPTIMAL_KHR) {
+  if (result == VK_ERROR_OUT_OF_DATE_KHR) {
     recreateSwapChain();
     return;
-  } else if (result != VK_SUCCESS && result)
+  }
+  if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     throw std::runtime_error("failed to acquire swap chain image!");
 
   vkResetFences(ctx.device, 1, &frames.inFlightFence);
@@ -70,7 +71,7 @@ void TriangleApplication::drawFrame() {
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &commandBuf;
 
-  VkSemaphore signalSemaphores[] = {syncObjects->renderFinised()[imageIndex]};
+  VkSemaphore signalSemaphores[] = {syncObjects->renderFinished()[imageIndex]};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -88,7 +89,11 @@ void TriangleApplication::drawFrame() {
   presentInfo.pImageIndices = &imageIndex;
   presentInfo.pResults = nullptr;
 
-  vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
+  result = vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
+  if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+      framebufferResized) {
+    recreateSwapChain();
+  }
   current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
@@ -102,17 +107,21 @@ void TriangleApplication::recreateSwapChain() {
   int width = 0, height = 0;
   glfwGetFramebufferSize(window->get(), &width, &height);
   while (width == 0 || height == 0) {
-    glfwGetFramebufferSize(window->get(), &width, &height);
     glfwWaitEvents();
+    glfwGetFramebufferSize(window->get(), &width, &height);
+    if (window->shouldClose())
+      return;
   }
 
   vkDeviceWaitIdle(ctx.device);
 
   cleanupSwapChain();
   swapchain->createSwapChain(window->get());
+  syncObjects->recreateRenderFinished(swapchain->images().size());
   imageView->createImageViews(swapchain->images(), swapchain->imageFormat());
   framebuffers->createFramebuffers(imageView->get(), renderPass->get(),
                                    swapchain->extent());
+  framebufferResized = false;
 }
 
 Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {
