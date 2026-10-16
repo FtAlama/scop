@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "0_triangleApplication.hpp"
 
 int main(void) {

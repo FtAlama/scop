@@ -24,7 +24,7 @@ public:
   ~CommandBuffer();
   void recordCommandBuffer(const VkCommandBuffer, const VkFramebuffer,
                            const VkRenderPass, const VkExtent2D,
-                           const VkPipeline);
+                           const VkPipeline, const VkBuffer &);
 
 private:
   vk_context &ctx;

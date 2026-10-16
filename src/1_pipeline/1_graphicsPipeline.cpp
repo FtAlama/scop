@@ -1,4 +1,5 @@
 #include "pipeline/1_graphicsPipeline.hpp"
+#include "vertex.hpp"
 #include "vk_context.hpp"
 #include <cstdint>
 #include <fstream>
@@ -22,12 +23,16 @@ static std::vector<char> readFile(const std::string &filename) {
 }
 
 void GraphicsPipeline::vertexInput() {
+  auto bindingDescription = Vertex::getBindingDescription();
+  auto attributeDescriptions = Vertex::getAttributeDescriptions();
+
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-  vertexInputInfo.vertexBindingDescriptionCount = 0;
-  vertexInputInfo.pVertexBindingDescriptions = nullptr;
-  vertexInputInfo.vertexAttributeDescriptionCount = 0;
-  vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+  vertexInputInfo.vertexBindingDescriptionCount = 1;
+  vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+  vertexInputInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(attributeDescriptions.size());
+  vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 }
 
 void GraphicsPipeline::inputAsm() {

@@ -1,5 +1,6 @@
 #include "frames/1_commandPool.hpp"
 #include "queueFamilies.hpp"
+#include "vertex.hpp"
 #include "vk_context.hpp"
 #include <cstdint>
 #include <stdexcept>
@@ -38,16 +39,21 @@ CommandBuffer::CommandBuffer(vk_context &ctx, const VkCommandPool commandPool)
     throw std::runtime_error("failed to allocate command buffer!");
 }
 
+static int test = 0;
+#include <iostream>
+
 void CommandBuffer::recordCommandBuffer(
     const VkCommandBuffer commandBuffer,
     const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
-    const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline) {
+    const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline,
+    const VkBuffer &vertexBuffer) {
   VkCommandBufferBeginInfo beginInfo{};
 
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = 0;
   beginInfo.pInheritanceInfo = nullptr;
-
+	std::cout << test << std::endl;
+	test++;
   if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
     throw std::runtime_error("failed to begin commmand buffer!");
 
@@ -80,7 +86,11 @@ void CommandBuffer::recordCommandBuffer(
   scissor.extent = swapChainExtent;
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-  vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+  VkBuffer vertexBuffers[] = {vertexBuffer};
+  VkDeviceSize offsets[] = {0};
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+  vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
   vkCmdEndRenderPass(commandBuffer);
   if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)

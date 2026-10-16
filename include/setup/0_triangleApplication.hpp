@@ -13,6 +13,7 @@
 #include <vulkan/vulkan_core.h>
 #define GLFW_INCLUDE_VULKAN
 #include "5_swapChain.hpp"
+#include "buffers/0_creation_buffers.hpp"
 #include "frames/0_framebuffers.hpp"
 #include "frames/1_commandPool.hpp"
 #include "pipeline/0_renderPass.hpp"
@@ -81,6 +82,7 @@ private:
   std::optional<SyncObjects> syncObjects;
   std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
+  std::optional<VertexBuffer> vertexBuffer;
   std::optional<SwapChain> swapchain;
   std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;
