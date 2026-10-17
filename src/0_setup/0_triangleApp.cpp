@@ -23,7 +23,7 @@ void TriangleApplication::initVulkan() {
   framebuffers.emplace(ctx, imageView->get(), renderPass->get(),
                        swapchain->extent());
   commandPool.emplace(ctx);
-	vertexBuffer.emplace(ctx);
+  vertexBuffer.emplace(ctx);
   commandBuffer.emplace(ctx, commandPool->get());
   syncObjects.emplace(ctx, swapchain->images().size());
 }
@@ -72,7 +72,7 @@ void TriangleApplication::drawFrame() {
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &commandBuf;
 
-  VkSemaphore signalSemaphores[] = {frames.renderFinishedSemaphores};
+  VkSemaphore signalSemaphores[] = {syncObjects->renderFinished(imageIndex)};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -118,7 +118,7 @@ void TriangleApplication::recreateSwapChain() {
 
   cleanupSwapChain();
   swapchain->createSwapChain(window->get());
-  syncObjects->recreateRenderFinished();
+	syncObjects->recreateRenderFinished();
   imageView->createImageViews(swapchain->images(), swapchain->imageFormat());
   framebuffers->createFramebuffers(imageView->get(), renderPass->get(),
                                    swapchain->extent());

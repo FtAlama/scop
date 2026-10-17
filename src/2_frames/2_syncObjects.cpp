@@ -6,6 +6,7 @@
 
 SyncObjects::SyncObjects(vk_context &ctx, const uint32_t image_nb) : ctx(ctx) {
   frames.resize(MAX_FRAMES_IN_FLIGHT);
+  renderFinishedSemaphores.resize(image_nb);
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
@@ -36,7 +37,7 @@ SyncObjects::SyncObjects(vk_context &ctx, const uint32_t image_nb) : ctx(ctx) {
   }
   for (uint32_t i = 0; i < image_nb; ++i)
     if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
-                          &frames[i].renderFinishedSemaphores) != VK_SUCCESS) {
+                          &renderFinishedSemaphores[i]) != VK_SUCCESS) {
 
       for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         vkDestroySemaphore(ctx.device, frames[i].imageAvailableSemaphore,
@@ -44,21 +45,21 @@ SyncObjects::SyncObjects(vk_context &ctx, const uint32_t image_nb) : ctx(ctx) {
         vkDestroyFence(ctx.device, frames[i].inFlightFence, nullptr);
       }
       for (uint32_t j = 0; j < i; ++j)
-        vkDestroySemaphore(ctx.device, frames[j].renderFinishedSemaphores, nullptr);
+        vkDestroySemaphore(ctx.device, renderFinishedSemaphores[i], nullptr);
       throw std::runtime_error("failed to create semaphores!");
     }
 }
 
 void SyncObjects::recreateRenderFinished() {
-  for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    vkDestroySemaphore(ctx.device, frames[i].renderFinishedSemaphores, nullptr);
+  for (auto renderFinished : renderFinishedSemaphores)
+    vkDestroySemaphore(ctx.device, renderFinished, nullptr);
 
   VkSemaphoreCreateInfo semaphoreInfo{};
   semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-  for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+  for (uint32_t i = 0; i < renderFinishedSemaphores.size(); ++i)
     if (vkCreateSemaphore(ctx.device, &semaphoreInfo, nullptr,
-                          &frames[i].renderFinishedSemaphores) != VK_SUCCESS)
+                          &renderFinishedSemaphores[i]) != VK_SUCCESS)
       throw std::runtime_error("failed to create semaphores!");
 }
 
@@ -66,6 +67,7 @@ SyncObjects::~SyncObjects() {
   for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
     vkDestroySemaphore(ctx.device, frames[i].imageAvailableSemaphore, nullptr);
     vkDestroyFence(ctx.device, frames[i].inFlightFence, nullptr);
-    vkDestroySemaphore(ctx.device, frames[i].renderFinishedSemaphores, nullptr);
   }
+  for (auto renderFinished : renderFinishedSemaphores)
+    vkDestroySemaphore(ctx.device, renderFinished, nullptr);
 }

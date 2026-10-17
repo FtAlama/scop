@@ -39,9 +39,6 @@ CommandBuffer::CommandBuffer(vk_context &ctx, const VkCommandPool commandPool)
     throw std::runtime_error("failed to allocate command buffer!");
 }
 
-static int test = 0;
-#include <iostream>
-
 void CommandBuffer::recordCommandBuffer(
     const VkCommandBuffer commandBuffer,
     const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
@@ -52,9 +49,7 @@ void CommandBuffer::recordCommandBuffer(
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = 0;
   beginInfo.pInheritanceInfo = nullptr;
-	std::cout << test << std::endl;
-	test++;
-  if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+ if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
     throw std::runtime_error("failed to begin commmand buffer!");
 
   VkRenderPassBeginInfo renderPassInfo{};

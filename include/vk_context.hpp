@@ -18,7 +18,6 @@ struct vk_context {
 struct frame_flight {
   VkSemaphore imageAvailableSemaphore;
   VkFence inFlightFence;
-  VkSemaphore renderFinishedSemaphores;
 };
 
 #endif

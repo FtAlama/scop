@@ -23,8 +23,8 @@ static std::vector<char> readFile(const std::string &filename) {
 }
 
 void GraphicsPipeline::vertexInput() {
-  auto bindingDescription = Vertex::getBindingDescription();
-  auto attributeDescriptions = Vertex::getAttributeDescriptions();
+  bindingDescription = Vertex::getBindingDescription();
+  attributeDescriptions = Vertex::getAttributeDescriptions();
 
   vertexInputInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

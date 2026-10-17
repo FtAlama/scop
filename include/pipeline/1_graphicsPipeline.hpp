@@ -3,6 +3,7 @@
 #define GRAPHICS_PIPELINE_HPP
 
 #include "vk_context.hpp"
+#include <array>
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
@@ -11,7 +12,7 @@ class GraphicsPipeline {
 public:
   GraphicsPipeline(vk_context &, VkRenderPass const);
   VkPipeline get() const { return graphicsPipeline; }
-	VkPipelineLayout pipelineLay() const { return pipelineLayout; }
+  VkPipelineLayout pipelineLay() const { return pipelineLayout; }
   ~GraphicsPipeline();
 
 private:
@@ -33,6 +34,8 @@ private:
   VkPipelineColorBlendAttachmentState colorBlendAttachment{};
   VkPipeline graphicsPipeline = VK_NULL_HANDLE;
   VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+  VkVertexInputBindingDescription bindingDescription{};
+  std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions;
   void vertexInput();
   void inputAsm();
   void viewportState();
