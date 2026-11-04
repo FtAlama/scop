@@ -34,7 +34,7 @@ CommandBuffer::CommandBuffer(vk_context &ctx, const VkCommandPool commandPool)
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-  if (vkAllocateCommandBuffers(ctx.device, &allocInfo, commandBuffers.data()) !=
+  if (vkAllocateCommandBuffers(this->ctx.device, &allocInfo, commandBuffers.data()) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to allocate command buffer!");
 }
