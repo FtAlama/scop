@@ -1,6 +1,5 @@
 #include "setup/4_logicalDevice.hpp"
 #include "queueFamilies.hpp"
-#include "setup/1_validationLayers.hpp"
 #include "setup/3_physicalDevice.hpp"
 #include <cstdint>
 #include <set>
@@ -45,8 +44,6 @@ LogicalDevice::LogicalDevice(vk_context &ctx) : ctx(ctx) {
                    &ctx.graphicsQueue);
   vkGetDeviceQueue(ctx.device, indices.presentFamily.value(), 0,
                    &ctx.presentQueue);
-
-  std::cout << "Logical device & queue familie create\n";
 }
 
 LogicalDevice::~LogicalDevice() { vkDestroyDevice(ctx.device, nullptr); }
