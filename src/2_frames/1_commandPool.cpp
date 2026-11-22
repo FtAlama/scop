@@ -18,6 +18,7 @@ CommandPool::CommandPool(vk_context &ctx) : ctx(ctx) {
   if (vkCreateCommandPool(ctx.device, &poolInfo, nullptr, &commandPool) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to create command pool!");
+	ctx.commandPool = commandPool;
 }
 
 CommandPool::~CommandPool() {

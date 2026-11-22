@@ -21,4 +21,6 @@ private:
 void create_buffer(vk_context &, VkDeviceSize, VkBufferUsageFlags,
                    VkMemoryPropertyFlags, VkBuffer &, VkDeviceMemory &);
 
+void copyBuffer(VkBuffer , VkBuffer , VkDeviceSize, vk_context &);
+
 #endif

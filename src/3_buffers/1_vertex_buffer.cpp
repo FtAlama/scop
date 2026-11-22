@@ -4,16 +4,25 @@
 #include <vulkan/vulkan_core.h>
 
 VertexBuffer::VertexBuffer(vk_context &ctx) : ctx(ctx) {
-  VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
-  create_buffer(ctx, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	create_buffer(ctx, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                vertexBuffer, vertexBufferMemory);
+                stagingBuffer, stagingBufferMemory);
 
   void *data;
-  vkMapMemory(ctx.device, vertexBufferMemory, 0, bufferSize, 0, &data);
+  vkMapMemory(ctx.device, stagingBufferMemory, 0, bufferSize, 0, &data);
   memcpy(data, vertices.data(), (size_t)bufferSize);
-  vkUnmapMemory(ctx.device, vertexBufferMemory);
+  vkUnmapMemory(ctx.device, stagingBufferMemory);
+
+  create_buffer(
+      ctx, bufferSize,
+      VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
 }
 
 VertexBuffer::~VertexBuffer() {
