@@ -23,6 +23,7 @@ void TriangleApplication::initVulkan() {
   framebuffers.emplace(ctx, imageView->get(), renderPass->get(),
                        swapchain->extent());
   commandPool.emplace(ctx);
+  indexBuffer.emplace(ctx);
   vertexBuffer.emplace(ctx);
   commandBuffer.emplace(ctx, commandPool->get());
   syncObjects.emplace(ctx, swapchain->images().size());
@@ -58,7 +59,8 @@ void TriangleApplication::drawFrame() {
   vkResetCommandBuffer(commandBuf, 0);
   commandBuffer->recordCommandBuffer(
       commandBuf, framebuffers->get()[imageIndex], renderPass->get(),
-      swapchain->extent(), graphicsPipeline->get(), vertexBuffer->get());
+      swapchain->extent(), graphicsPipeline->get(), vertexBuffer->get(),
+      indexBuffer->get());
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -118,7 +120,7 @@ void TriangleApplication::recreateSwapChain() {
 
   cleanupSwapChain();
   swapchain->createSwapChain(window->get());
-	syncObjects->recreateRenderFinished();
+  syncObjects->recreateRenderFinished();
   imageView->createImageViews(swapchain->images(), swapchain->imageFormat());
   framebuffers->createFramebuffers(imageView->get(), renderPass->get(),
                                    swapchain->extent());
@@ -141,9 +143,9 @@ Instance::Instance(vk_context &ctx, ValidationLayers &layers) : ctx(ctx) {
 
   createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   createInfo.pApplicationInfo = &appInfo;
-	#if __APPLE__
-	createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-	#endif
+#if __APPLE__
+  createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
   auto extensions = layers.getRequiredExtensions();
   createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
   createInfo.ppEnabledExtensionNames = extensions.data();

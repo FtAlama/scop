@@ -15,12 +15,23 @@ private:
   vk_context &ctx;
   VkBuffer vertexBuffer;
   VkDeviceMemory vertexBufferMemory;
-  VkMemoryRequirements memRequirements;
 };
 
 void create_buffer(vk_context &, VkDeviceSize, VkBufferUsageFlags,
                    VkMemoryPropertyFlags, VkBuffer &, VkDeviceMemory &);
 
-void copyBuffer(VkBuffer , VkBuffer , VkDeviceSize, vk_context &);
+void copyBuffer(VkBuffer, VkBuffer, VkDeviceSize, vk_context &);
+
+class IndexBuffer {
+public:
+  IndexBuffer(vk_context &);
+  ~IndexBuffer();
+  const VkBuffer &get() const { return indexBuffer; }
+
+private:
+  vk_context &ctx;
+  VkBuffer indexBuffer;
+  VkDeviceMemory indexBufferMemory;
+};
 
 #endif

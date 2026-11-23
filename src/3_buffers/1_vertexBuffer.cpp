@@ -1,10 +1,9 @@
-#include "buffers/0_creation_buffers.hpp"
+#include "buffers/0_creationBuffers.hpp"
 #include "vertex.hpp"
 #include <cstring>
 #include <vulkan/vulkan_core.h>
 
 VertexBuffer::VertexBuffer(vk_context &ctx) : ctx(ctx) {
-
 	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 	
 	VkBuffer stagingBuffer;

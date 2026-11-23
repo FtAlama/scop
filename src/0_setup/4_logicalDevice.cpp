@@ -8,7 +8,6 @@
 
 LogicalDevice::LogicalDevice(vk_context &ctx) : ctx(ctx) {
   QueueFamilyIndices indices =
-
       findQueueFamilies(ctx.physicalDevice, ctx.surface);
   std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
   std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(),

@@ -44,7 +44,7 @@ void CommandBuffer::recordCommandBuffer(
     const VkCommandBuffer commandBuffer,
     const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
     const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline,
-    const VkBuffer &vertexBuffer) {
+    const VkBuffer &vertexBuffer, const VkBuffer &indexBuffer) {
   VkCommandBufferBeginInfo beginInfo{};
 
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -85,9 +85,9 @@ void CommandBuffer::recordCommandBuffer(
   VkBuffer vertexBuffers[] = {vertexBuffer};
   VkDeviceSize offsets[] = {0};
   vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-  vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
   vkCmdEndRenderPass(commandBuffer);
   if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     throw std::runtime_error("failed to record command buffer!");

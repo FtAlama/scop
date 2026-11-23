@@ -22,8 +22,9 @@ add_executable(scop
 	src/2_frames/0_framebuffers.cpp
 	src/2_frames/1_commandPool.cpp
 	src/2_frames/2_syncObjects.cpp
-	src/3_buffers/0_creation_buffers.cpp
-	src/3_buffers/1_vertex_buffer.cpp
+	src/3_buffers/0_creationBuffers.cpp
+	src/3_buffers/1_vertexBuffer.cpp
+	src/3_buffers/2_indexBuffer.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
