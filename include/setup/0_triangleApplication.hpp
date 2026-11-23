@@ -82,8 +82,7 @@ private:
   std::optional<SyncObjects> syncObjects;
   std::optional<RenderPass> renderPass;
   std::optional<GraphicsPipeline> graphicsPipeline;
-  std::optional<VertexBuffer> vertexBuffer;
-	std::optional<IndexBuffer> indexBuffer;
+  std::optional<MeshBuffer> meshBuffer;
   std::optional<SwapChain> swapchain;
   std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;

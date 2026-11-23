@@ -5,16 +5,16 @@
 #include "vk_context.hpp"
 #include <vulkan/vulkan_core.h>
 
-class VertexBuffer {
+class MeshBuffer {
 public:
-  VertexBuffer(vk_context &);
-  ~VertexBuffer();
-  const VkBuffer &get() const { return vertexBuffer; }
+  MeshBuffer(vk_context &);
+  ~MeshBuffer();
+  const VkBuffer &get() const { return meshBuffer; }
 
 private:
   vk_context &ctx;
-  VkBuffer vertexBuffer;
-  VkDeviceMemory vertexBufferMemory;
+  VkBuffer meshBuffer;
+  VkDeviceMemory meshBufferMemory;
 };
 
 void create_buffer(vk_context &, VkDeviceSize, VkBufferUsageFlags,

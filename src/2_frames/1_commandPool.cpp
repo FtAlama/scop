@@ -44,7 +44,7 @@ void CommandBuffer::recordCommandBuffer(
     const VkCommandBuffer commandBuffer,
     const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
     const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline,
-    const VkBuffer &vertexBuffer, const VkBuffer &indexBuffer) {
+    const VkBuffer &meshBuffer) {
   VkCommandBufferBeginInfo beginInfo{};
 
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -82,10 +82,11 @@ void CommandBuffer::recordCommandBuffer(
   scissor.extent = swapChainExtent;
   vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-  VkBuffer vertexBuffers[] = {vertexBuffer};
+  VkBuffer meshBuffers[] = {meshBuffer};
   VkDeviceSize offsets[] = {0};
-  vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+  vkCmdBindVertexBuffers(commandBuffer, 0, 1, meshBuffers, offsets);
+  VkDeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
+	vkCmdBindIndexBuffer(commandBuffer, meshBuffer, vertexSize, VK_INDEX_TYPE_UINT16);
 
 	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
   vkCmdEndRenderPass(commandBuffer);
