@@ -10,7 +10,7 @@
 
 class GraphicsPipeline {
 public:
-  GraphicsPipeline(vk_context &, VkRenderPass const);
+  GraphicsPipeline(vk_context &, VkRenderPass const, VkDescriptorSetLayout const);
   VkPipeline get() const { return graphicsPipeline; }
   VkPipelineLayout pipelineLay() const { return pipelineLayout; }
   ~GraphicsPipeline();

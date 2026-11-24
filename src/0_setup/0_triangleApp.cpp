@@ -19,11 +19,13 @@ void TriangleApplication::initVulkan() {
   swapchain.emplace(ctx, window->get());
   imageView.emplace(ctx, swapchain->images(), swapchain->imageFormat());
   renderPass.emplace(ctx, swapchain->imageFormat());
-  graphicsPipeline.emplace(ctx, renderPass->get());
+  descriptorSetLayout.emplace(ctx);
+  graphicsPipeline.emplace(ctx, renderPass->get(), descriptorSetLayout->get());
   framebuffers.emplace(ctx, imageView->get(), renderPass->get(),
                        swapchain->extent());
   commandPool.emplace(ctx);
   meshBuffer.emplace(ctx);
+	uniformBuffers.emplace(ctx, swapchain->images().size());
   commandBuffer.emplace(ctx, commandPool->get());
   syncObjects.emplace(ctx, swapchain->images().size());
 }
@@ -51,6 +53,8 @@ void TriangleApplication::drawFrame() {
   }
   if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     throw std::runtime_error("failed to acquire swap chain image!");
+
+	//here
 
   vkResetFences(ctx.device, 1, &frames.inFlightFence);
 

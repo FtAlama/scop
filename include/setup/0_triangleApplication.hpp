@@ -7,6 +7,8 @@
 #include "3_physicalDevice.hpp"
 #include "4_logicalDevice.hpp"
 #include "6_imageViews.hpp"
+#include "buffers/1_uniformBuffers.hpp"
+#include "buffers/2_descriptorPool.hpp"
 #include "frames/2_syncObjects.hpp"
 #include "vk_context.hpp"
 #include <vulkan/vk_platform.h>
@@ -32,6 +34,7 @@ public:
 private:
   vk_context &ctx;
 };
+
 static void framebufferResizedCallback(GLFWwindow *window, int width,
                                        int height);
 
@@ -84,6 +87,9 @@ private:
   std::optional<GraphicsPipeline> graphicsPipeline;
   std::optional<MeshBuffer> meshBuffer;
   std::optional<SwapChain> swapchain;
+  std::optional<DescriptorSetLayout> descriptorSetLayout;
+	std::optional<DescriptorPool> descriptorPool;
+  std::optional<UniformBuffers> uniformBuffers;
   std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;
 

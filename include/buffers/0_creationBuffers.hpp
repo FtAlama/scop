@@ -22,16 +22,4 @@ void create_buffer(vk_context &, VkDeviceSize, VkBufferUsageFlags,
 
 void copyBuffer(VkBuffer, VkBuffer, VkDeviceSize, vk_context &);
 
-class IndexBuffer {
-public:
-  IndexBuffer(vk_context &);
-  ~IndexBuffer();
-  const VkBuffer &get() const { return indexBuffer; }
-
-private:
-  vk_context &ctx;
-  VkBuffer indexBuffer;
-  VkDeviceMemory indexBufferMemory;
-};
-
 #endif

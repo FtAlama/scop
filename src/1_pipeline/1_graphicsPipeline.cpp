@@ -145,8 +145,9 @@ GraphicsPipeline::createShaderModule(const std::vector<char> &code) {
   return (shaderModule);
 }
 
-GraphicsPipeline::GraphicsPipeline(vk_context &ctx,
-                                   VkRenderPass const renderPass)
+GraphicsPipeline::GraphicsPipeline(
+    vk_context &ctx, VkRenderPass const renderPass,
+    VkDescriptorSetLayout const descriptorSetLayout)
     : ctx(ctx) {
   auto vertShaderCode = readFile("vert.spv");
   auto fragShaderCode = readFile("frag.spv");
@@ -181,8 +182,8 @@ GraphicsPipeline::GraphicsPipeline(vk_context &ctx,
   VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
   pipelineLayoutCreateInfo.sType =
       VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutCreateInfo.setLayoutCount = 0;
-  pipelineLayoutCreateInfo.pSetLayouts = nullptr;
+  pipelineLayoutCreateInfo.setLayoutCount = 1;
+  pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
   pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
   pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
 
