@@ -90,6 +90,7 @@ private:
   std::optional<DescriptorSetLayout> descriptorSetLayout;
 	std::optional<DescriptorPool> descriptorPool;
   std::optional<UniformBuffers> uniformBuffers;
+	std::optional<DescriptorSets> descriptorSets;
   std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;
 

@@ -3,6 +3,7 @@
 #define COMMANDPOOL_HPP
 
 #include "vk_context.hpp"
+#include <cstdint>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
@@ -24,7 +25,9 @@ public:
   ~CommandBuffer();
   void recordCommandBuffer(const VkCommandBuffer, const VkFramebuffer,
                            const VkRenderPass, const VkExtent2D,
-                           const VkPipeline, const VkBuffer &);
+                           const VkPipeline, const VkBuffer &,
+                           const std::vector<VkDescriptorSet> &,
+                           VkPipelineLayout const, uint32_t current_frame);
 
 private:
   vk_context &ctx;

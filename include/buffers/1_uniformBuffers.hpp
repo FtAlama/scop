@@ -18,6 +18,7 @@ public:
 	UniformBuffers(vk_context &, uint32_t);
 	~UniformBuffers();
 	void updateUniformBuffer(uint32_t, VkExtent2D const);
+	const std::vector<VkBuffer> &get() const { return uniformBuffers; }
 
 private:
 	vk_context &ctx;

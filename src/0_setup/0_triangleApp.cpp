@@ -25,7 +25,11 @@ void TriangleApplication::initVulkan() {
                        swapchain->extent());
   commandPool.emplace(ctx);
   meshBuffer.emplace(ctx);
-	uniformBuffers.emplace(ctx, swapchain->images().size());
+  uniformBuffers.emplace(ctx, swapchain->images().size());
+  descriptorPool.emplace(ctx, swapchain->images().size());
+  descriptorSets.emplace(ctx, descriptorSetLayout->get(),
+                         swapchain->images().size(), descriptorPool->get(),
+                         uniformBuffers->get());
   commandBuffer.emplace(ctx, commandPool->get());
   syncObjects.emplace(ctx, swapchain->images().size());
 }
@@ -54,7 +58,7 @@ void TriangleApplication::drawFrame() {
   if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
     throw std::runtime_error("failed to acquire swap chain image!");
 
-	//here
+	uniformBuffers->updateUniformBuffer(current_frame, swapchain->extent());
 
   vkResetFences(ctx.device, 1, &frames.inFlightFence);
 
@@ -62,7 +66,8 @@ void TriangleApplication::drawFrame() {
   vkResetCommandBuffer(commandBuf, 0);
   commandBuffer->recordCommandBuffer(
       commandBuf, framebuffers->get()[imageIndex], renderPass->get(),
-      swapchain->extent(), graphicsPipeline->get(), meshBuffer->get());
+      swapchain->extent(), graphicsPipeline->get(), meshBuffer->get(),
+      descriptorSets->get(), graphicsPipeline->pipelineLay(), current_frame);
 
   VkSubmitInfo submitInfo{};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

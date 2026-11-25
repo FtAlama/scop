@@ -4,6 +4,7 @@
 #include "vk_context.hpp"
 #include <cstdint>
 #include <stdexcept>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
 CommandPool::CommandPool(vk_context &ctx) : ctx(ctx) {
@@ -18,7 +19,7 @@ CommandPool::CommandPool(vk_context &ctx) : ctx(ctx) {
   if (vkCreateCommandPool(ctx.device, &poolInfo, nullptr, &commandPool) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to create command pool!");
-	ctx.commandPool = commandPool;
+  ctx.commandPool = commandPool;
 }
 
 CommandPool::~CommandPool() {
@@ -35,8 +36,8 @@ CommandBuffer::CommandBuffer(vk_context &ctx, const VkCommandPool commandPool)
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
 
-  if (vkAllocateCommandBuffers(this->ctx.device, &allocInfo, commandBuffers.data()) !=
-      VK_SUCCESS)
+  if (vkAllocateCommandBuffers(this->ctx.device, &allocInfo,
+                               commandBuffers.data()) != VK_SUCCESS)
     throw std::runtime_error("failed to allocate command buffer!");
 }
 
@@ -44,13 +45,15 @@ void CommandBuffer::recordCommandBuffer(
     const VkCommandBuffer commandBuffer,
     const VkFramebuffer swapchainFramebuffer, const VkRenderPass renderPass,
     const VkExtent2D swapChainExtent, const VkPipeline graphicsPipeline,
-    const VkBuffer &meshBuffer) {
+    const VkBuffer &meshBuffer,
+    const std::vector<VkDescriptorSet> &descriptorSets,
+    VkPipelineLayout const pipelineLayout, uint32_t current_frame) {
   VkCommandBufferBeginInfo beginInfo{};
 
   beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
   beginInfo.flags = 0;
   beginInfo.pInheritanceInfo = nullptr;
- if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+  if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
     throw std::runtime_error("failed to begin commmand buffer!");
 
   VkRenderPassBeginInfo renderPassInfo{};
@@ -86,9 +89,14 @@ void CommandBuffer::recordCommandBuffer(
   VkDeviceSize offsets[] = {0};
   vkCmdBindVertexBuffers(commandBuffer, 0, 1, meshBuffers, offsets);
   VkDeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
-	vkCmdBindIndexBuffer(commandBuffer, meshBuffer, vertexSize, VK_INDEX_TYPE_UINT16);
+  vkCmdBindIndexBuffer(commandBuffer, meshBuffer, vertexSize,
+                       VK_INDEX_TYPE_UINT16);
+  vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                          pipelineLayout, 0, 1, &descriptorSets[current_frame],
+                          0, nullptr);
 
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+  vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0,
+                   0, 0);
   vkCmdEndRenderPass(commandBuffer);
   if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
     throw std::runtime_error("failed to record command buffer!");
