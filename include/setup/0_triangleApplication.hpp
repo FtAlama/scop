@@ -88,9 +88,9 @@ private:
   std::optional<MeshBuffer> meshBuffer;
   std::optional<SwapChain> swapchain;
   std::optional<DescriptorSetLayout> descriptorSetLayout;
-	std::optional<DescriptorPool> descriptorPool;
+  std::optional<DescriptorPool> descriptorPool;
   std::optional<UniformBuffers> uniformBuffers;
-	std::optional<DescriptorSets> descriptorSets;
+  std::optional<DescriptorSets> descriptorSets;
   std::optional<ImageViews> imageView;
   std::optional<Framebuffers> framebuffers;
 

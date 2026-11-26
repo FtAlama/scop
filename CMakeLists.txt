@@ -26,6 +26,7 @@ add_executable(scop
 	src/3_buffers/1_meshBuffer.cpp
 	src/3_buffers/2_uniformBuffers.cpp
 	src/3_buffers/3_descriptorPool.cpp
+	src/4_textures/0_textureImage.cpp
 )
 
 target_include_directories(scop SYSTEM PRIVATE $ENV{HOME}/glm-test)
@@ -34,6 +35,8 @@ target_include_directories(scop PRIVATE include/setup)
 target_include_directories(scop PRIVATE include/frames)
 target_include_directories(scop PRIVATE include/pipeline)
 target_include_directories(scop PRIVATE include/buffers)
+target_include_directories(scop PRIVATE include/texture_image)
+target_include_directories(scop PUBLIC external)
 target_include_directories(scop SYSTEM PRIVATE ${Vulkan_INCLUDE_DIR})
 target_link_libraries(scop PRIVATE Vulkan::Vulkan glfw)
 target_compile_options(scop PRIVATE -Wall -Wextra -Werror -g2 -D_GLIBCXX_DEBUG)
