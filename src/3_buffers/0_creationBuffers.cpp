@@ -80,5 +80,3 @@ void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size,
   vkQueueWaitIdle(ctx.graphicsQueue);
 	vkFreeCommandBuffers(ctx.device, ctx.commandPool, 1, &commandBuffer);
 }
-
-
