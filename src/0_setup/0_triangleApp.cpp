@@ -1,4 +1,3 @@
-#include "texture_image/textureImage.hpp"
 #include "setup/0_triangleApplication.hpp"
 #include <GLFW/glfw3.h>
 #include <cstdint>
@@ -33,7 +32,7 @@ void TriangleApplication::initVulkan() {
                          uniformBuffers->get());
   commandBuffer.emplace(ctx, commandPool->get());
   syncObjects.emplace(ctx, swapchain->images().size());
-	TextureImage tex(ctx, "textures/vulcain.jpg");
+	//TextureImage tex(ctx, "textures/vulcain.jpg");
 }
 
 void TriangleApplication::mainLoop() {

@@ -1,5 +1,5 @@
+#include "buffers/0_creationBuffers.hpp"
 #include "texture_image/textureImage.hpp"
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <glm/vector_relational.hpp>
@@ -7,58 +7,8 @@
 #include <string>
 #include <vulkan/vulkan_core.h>
 
-// #define STB_IMAGE_IMPLEMENTATION
 #include "buffers/0_creationBuffers.hpp"
-#include "stb_image.h"
 #include "vk_context.hpp"
-
-uint32_t static findImageMemoryType(uint32_t typeFilter,
-                                    const VkMemoryPropertyFlags properties,
-                                    vk_context &ctx) {
-  VkPhysicalDeviceMemoryProperties memProperties;
-  vkGetPhysicalDeviceMemoryProperties(ctx.physicalDevice, &memProperties);
-
-  for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
-    if ((typeFilter & (1 << i)) &&
-        (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-      return i;
-  }
-  throw std::runtime_error("failed to find suitable memory type!");
-}
-
-StagingTexture::StagingTexture(vk_context &ctx, std::string const path)
-    : ctx(ctx) {
-  int texChannels;
-
-  stbi_uc *pixels = stbi_load(path.c_str(), &coord.width, &coord.height,
-                              &texChannels, STBI_rgb_alpha);
-  if (!pixels)
-    throw std::runtime_error("failed to open texture : " + path + " !");
-  VkDeviceSize imageSize = coord.width * coord.height * 4;
-
-  create_buffer(ctx, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                stagingBuffer, stagingBufferMemory);
-  void *data;
-
-  vkMapMemory(ctx.device, stagingBufferMemory, 0, imageSize, 0, &data);
-  memcpy(data, pixels, static_cast<size_t>(imageSize));
-  vkUnmapMemory(ctx.device, stagingBufferMemory);
-  stbi_image_free(pixels);
-}
-
-inline void StagingTexture::destroyStaging() {
-  vkDestroyBuffer(ctx.device, stagingBuffer, nullptr);
-  vkFreeMemory(ctx.device, stagingBufferMemory, nullptr);
-  isDestroy = true;
-}
-
-StagingTexture::~StagingTexture() {
-  if (!isDestroy) {
-    destroyStaging();
-  }
-}
 
 Image::Image(vk_context &ctx, textCoord const &coord, VkFormat const format,
              VkImageTiling const tiling, VkImageUsageFlags const usage)
@@ -98,7 +48,7 @@ ImageDeviceMemory::ImageDeviceMemory(vk_context &ctx, VkImage const &image,
   allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
   allocInfo.allocationSize = memRequirements.size;
   allocInfo.memoryTypeIndex =
-      findImageMemoryType(memRequirements.memoryTypeBits, properties, ctx);
+      findMemoryType(memRequirements.memoryTypeBits, properties, ctx);
   if (vkAllocateMemory(ctx.device, &allocInfo, nullptr, &textureImageMemory) !=
       VK_SUCCESS)
     throw std::runtime_error("failed to allocate image memory!");
@@ -114,6 +64,8 @@ TextureImage::TextureImage(vk_context &ctx, std::string const path,
                            VkFormat const format, VkImageTiling const tiling,
                            VkImageUsageFlags const usage,
                            VkMemoryPropertyFlags const properties)
-    : ctx(ctx), stagingTexture(ctx, path),
+    : ctx(ctx), stagingTexture(ctx),
       textureImage(ctx, stagingTexture.get_coord(), format, tiling, usage),
-      textureImageMemory(ctx, textureImage.get(), properties) {}
+      textureImageMemory(ctx, textureImage.get(), properties) {
+  stagingTexture.createImage(path);
+}

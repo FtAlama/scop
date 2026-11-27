@@ -5,26 +5,7 @@
 #include "vk_context.hpp"
 #include <string>
 #include <vulkan/vulkan_core.h>
-
-struct textCoord {
-  int width;
-  int height;
-};
-
-class StagingTexture {
-public:
-  StagingTexture(vk_context &, std::string const);
-  const textCoord &get_coord() const { return coord; }
-  inline void destroyStaging();
-  ~StagingTexture();
-
-private:
-  vk_context &ctx;
-  textCoord coord;
-  VkBuffer stagingBuffer;
-  VkDeviceMemory stagingBufferMemory;
-  bool isDestroy = false;
-};
+#include "buffers/0_creationBuffers.hpp"
 
 class Image {
 public:
@@ -59,7 +40,7 @@ public:
 
 private:
   vk_context &ctx;
-  StagingTexture stagingTexture;
+  StagingBuffer stagingTexture;
   Image textureImage;
   ImageDeviceMemory textureImageMemory;
 };

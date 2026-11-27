@@ -1,0 +1,26 @@
+Breakpoint 1 at 0x41dd5: file /home/alama/post_cc/scop/src/3_buffers/0_creationBuffers.cpp, line 15.
+Starting program: /home/alama/post_cc/scop/scop 
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7fffdadff640 (LWP 134730)]
+[New Thread 0x7fffda5fe640 (LWP 134731)]
+[New Thread 0x7fffd9cfd640 (LWP 134733)]
+[New Thread 0x7fffd94fc640 (LWP 134734)]
+[New Thread 0x7fffd88bb640 (LWP 134736)]
+
+Thread 1 "scop" hit Breakpoint 1, StagingBuffer::create (this=0x7fffffffdaa0, size=92, usage=1, properties=6) at /home/alama/post_cc/scop/src/3_buffers/0_creationBuffers.cpp:15
+#0  StagingBuffer::create (this=0x7fffffffdaa0, size=92, usage=1, properties=6)
+    at /home/alama/post_cc/scop/src/3_buffers/0_creationBuffers.cpp:15
+#1  0x0000555555596cdf in MeshBuffer::MeshBuffer (this=0x7fffffffe048, ctx=...)
+    at /home/alama/post_cc/scop/src/3_buffers/1_meshBuffer.cpp:14
+#2  0x00005555555614e8 in std::_Construct<MeshBuffer, vk_context&> (__p=0x7fffffffe048) at /usr/include/c++/11/bits/stl_construct.h:119
+#3  0x00005555555605e7 in std::_Optional_payload_base<MeshBuffer>::_M_construct<vk_context&> (this=0x7fffffffe048)
+    at /usr/include/c++/11/optional:251
+#4  0x000055555555f450 in std::_Optional_base_impl<MeshBuffer, std::_Optional_base<MeshBuffer, false, false> >::_M_construct<vk_context&> (
+    this=0x7fffffffe048) at /usr/include/c++/11/optional:419
+#5  0x000055555555e60a in std::optional<MeshBuffer>::emplace<vk_context&> (this=0x7fffffffe048) at /usr/include/c++/11/optional:875
+#6  0x000055555555cb0a in TriangleApplication::initVulkan (this=0x7fffffffdcb0)
+    at /home/alama/post_cc/scop/src/0_setup/0_triangleApp.cpp:27
+#7  0x000055555555a8e2 in TriangleApplication::run (this=0x7fffffffdcb0)
+    at /home/alama/post_cc/scop/include/setup/0_triangleApplication.hpp:70
+#8  0x000055555555a59e in main () at /home/alama/post_cc/scop/src/main.cpp:6

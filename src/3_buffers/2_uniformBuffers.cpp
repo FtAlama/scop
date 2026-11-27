@@ -1,4 +1,3 @@
-#include "0_creationBuffers.hpp"
 #include "buffers/1_uniformBuffers.hpp"
 #include "vk_context.hpp"
 #include <cstdint>
@@ -16,16 +15,18 @@ UniformBuffers::UniformBuffers(vk_context &ctx, uint32_t frames_size)
     : ctx(ctx), frames_size(frames_size) {
   VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-  uniformBuffers.resize(frames_size);
-  uniformBuffersMemory.resize(frames_size);
   uniformBuffersMapped.resize(frames_size);
+  uniformBuffers.reserve(frames_size);
+  uniformBuffersMemory.reserve(frames_size);
 
   for (uint32_t i = 0; i < frames_size; i++) {
-    create_buffer(ctx, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                  uniformBuffers[i], uniformBuffersMemory[i]);
-    vkMapMemory(ctx.device, uniformBuffersMemory[i], 0, bufferSize, 0,
+    uniformBuffers.emplace_back(ctx);
+    uniformBuffersMemory.emplace_back(ctx);
+    uniformBuffers[i].create(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+    uniformBuffersMemory[i].create(uniformBuffers[i].get(),
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vkMapMemory(ctx.device, uniformBuffersMemory[i].get(), 0, bufferSize, 0,
                 &uniformBuffersMapped[i]);
   }
 }
@@ -53,9 +54,4 @@ void UniformBuffers::updateUniformBuffer(uint32_t currentImage,
   memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 }
 
-UniformBuffers::~UniformBuffers() {
-  for (uint32_t i = 0; i < frames_size; i++) {
-    vkDestroyBuffer(ctx.device, uniformBuffers[i], nullptr);
-    vkFreeMemory(ctx.device, uniformBuffersMemory[i], nullptr);
-  }
-}
+UniformBuffers::~UniformBuffers() {}
